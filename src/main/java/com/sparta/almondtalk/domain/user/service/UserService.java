@@ -1,4 +1,18 @@
 package com.sparta.almondtalk.domain.user.service;
 
-public class UserService {
+import com.sparta.almondtalk.domain.user.model.User;
+import com.sparta.almondtalk.domain.user.request.UpdateUserRequest;
+import com.sparta.almondtalk.global.exception.UserException;
+
+import java.util.List;
+
+public interface UserService {
+
+    public User findUserById(Integer id) throws UserException;
+
+    public User findUserProfile(String jwt) throws UserException;
+
+    public User updateUser(Integer userId, UpdateUserRequest req) throws UserException;
+
+    public List<User> searchUser(String query);
 }

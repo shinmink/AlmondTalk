@@ -1,0 +1,51 @@
+# Single Chat 생성
+POST http://localhost:8081/api/chats/single
+Authorization: Bearer your_jwt_token_here
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+###
+
+# Group Chat 생성
+POST http://localhost:8081/api/chats/group
+Authorization: Bearer your_jwt_token_here
+Content-Type: application/json
+
+{
+  "chatName": "Group Chat Name",
+  "chatImage": "http://example.com/image.jpg",
+  "userIds": [2, 3, 4]
+}
+
+###
+
+# 특정 Chat 조회
+GET http://localhost:8081/api/chats/1
+Authorization: Bearer your_jwt_token_here
+
+###
+
+# 사용자와 관련된 모든 Chat 조회
+GET http://localhost:8081/api/chats/user
+Authorization: Bearer your_jwt_token_here
+
+###
+
+# Group Chat에 사용자 추가
+PUT http://localhost:8081/api/chats/1/add/2
+Authorization: Bearer your_jwt_token_here
+
+###
+
+# Group Chat에서 사용자 제거
+PUT http://localhost:8081/api/chats/1/remove/2
+Authorization: Bearer your_jwt_token_here
+
+###
+
+# Chat 삭제
+DELETE http://localhost:8081/api/chats/delete/1
+Authorization: Bearer your_jwt_token_here

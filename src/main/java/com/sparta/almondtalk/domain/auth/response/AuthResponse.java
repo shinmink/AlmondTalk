@@ -1,17 +1,12 @@
 package com.sparta.almondtalk.domain.auth.response;
 
+import lombok.Getter;
+
 public class AuthResponse {
 
+    @Getter
     private String jwt;
     private boolean isAuth;
-
-    public String getJwt() {
-        return jwt;
-    }
-
-    public void setJwt(String jwt) {
-        this.jwt = jwt;
-    }
 
     public boolean isAuth() {
         return isAuth;

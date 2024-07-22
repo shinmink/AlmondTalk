@@ -4,58 +4,59 @@ import { BsArrowLeft, BsCheck2 } from "react-icons/bs";
 import { useDispatch } from "react-redux";
 import { createGroupChat } from "../../Redux/Chat/Action";
 
+// NewGroup 컴포넌트 정의
 const NewGroup = ({ groupMember, setIsGroup }) => {
-    // State to manage image uploading
+    // 이미지 업로드 상태를 관리하는 상태
     const [isImageUploading, setIsImageUploading] = useState(false);
-    // State to store the group image
+    // 그룹 이미지를 저장하는 상태
     const [groupImage, setGroupImage] = useState(null);
-    // State to store the group name
+    // 그룹 이름을 저장하는 상태
     const [groupName, setGroupName] = useState("");
     const dispatch = useDispatch();
-    // Get the user's token from local storage
+    // 로컬 스토리지에서 사용자의 토큰을 가져옴
     const token = localStorage.getItem("token");
 
-    // Function to handle the creation of a new group
+    // 새로운 그룹을 생성하는 함수
     const handleCreateGroup = () => {
-        // Extract user IDs from group members
+        // 그룹 멤버에서 사용자 ID를 추출
         let userIds = [];
         for (let user of groupMember) {
             userIds.push(user.id);
         }
-        // Create a group object with user IDs, group name, and group image
+        // 사용자 ID, 그룹 이름, 그룹 이미지로 그룹 객체 생성
         const group = {
             userIds,
             chatName: groupName,
             chatImage: groupImage,
         };
-        // Create data object with group and token
+        // 그룹과 토큰을 포함한 데이터 객체 생성
         const data = {
             group,
             token,
         };
-        // Dispatch an action to create a group chat
+        // 그룹 채팅 생성을 위한 액션 디스패치
         dispatch(createGroupChat(data));
-        // Close the new group creation interface
+        // 새로운 그룹 생성 인터페이스를 닫음
         setIsGroup(false);
     };
 
-    // Function to upload an image to Cloudinary
+    // 이미지를 Cloudinary에 업로드하는 함수
     const uploadToCloudinary = (pics) => {
-        // Set the image uploading flag to true
+        // 이미지 업로드 상태를 true로 설정
         setIsImageUploading(true);
-        // Create a new FormData object and append the selected file to it
+        // 새로운 FormData 객체를 생성하고 선택된 파일을 추가
         const data = new FormData();
         data.append("file", pics);
         data.append("upload_preset", "whatsapp");
         data.append("cloud_name", "dadlxgune");
-        // Make a POST request to Cloudinary's API to upload the image
+        // Cloudinary API에 이미지 업로드를 위한 POST 요청
         fetch("https://api.cloudinary.com/v1_1/dadlxgune/image/upload", {
             method: "post",
             body: data,
         })
             .then((res) => res.json())
             .then((data) => {
-                // Set the group image URL and update the image uploading flag
+                // 그룹 이미지 URL을 설정하고 이미지 업로드 상태를 false로 업데이트
                 setGroupImage(data.url.toString());
                 setIsImageUploading(false);
             });
@@ -63,13 +64,13 @@ const NewGroup = ({ groupMember, setIsGroup }) => {
 
     return (
         <div className="w-full h-full">
-            {/* Header */}
+            {/* 헤더 부분 */}
             <div className="flex items-center space-x-10 bg-[#008069] text-white pt-16 px-10 pb-5">
                 <BsArrowLeft className="cursor-pointer text-2xl font-bold" />
                 <p className="text-xl font-semibold">New Group</p>
             </div>
 
-            {/* Group image */}
+            {/* 그룹 이미지 */}
             <div className="flex flex-col justify-center items-center my-12">
                 <label htmlFor="imgInput" className="relative">
                     <Avatar
@@ -92,7 +93,7 @@ const NewGroup = ({ groupMember, setIsGroup }) => {
                 />
             </div>
 
-            {/* Group name input */}
+            {/* 그룹 이름 입력란 */}
             <div className="w-full flex justify-between items-center py-2 px-5">
                 <input
                     className="w-full outline-none border-b-2 border-green-700 px-2 bg-transparent"
@@ -103,7 +104,7 @@ const NewGroup = ({ groupMember, setIsGroup }) => {
                 />
             </div>
 
-            {/* Create group button */}
+            {/* 그룹 생성 버튼 */}
             {groupName && (
                 <div className="py-10 bg-slate-200 flex items-center justify-center">
                     <Button onClick={handleCreateGroup}>

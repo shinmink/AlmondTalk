@@ -4,17 +4,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { updateUser } from "../../Redux/Auth/Action";
 
+// Profile 컴포넌트 정의
 const Profile = ({ handleCloseOpenProfile }) => {
+    // 상태 관리: 편집 모드 여부
     const [flag, setFlag] = useState(false);
+    // 상태 관리: 사용자 이름
     const [username, setUsername] = useState(null);
+    // 상태 관리: 임시 프로필 사진 URL
     const [tempPicture, setTempPicture] = useState(null);
     const { auth } = useSelector((store) => store);
     const dispatch = useDispatch();
 
+    // 편집 모드로 전환하는 함수
     const handleFlag = () => {
         setFlag(true);
     };
 
+    // 확인 버튼 클릭 시 처리하는 함수
     const handleCheckClick = (e) => {
         setFlag(false);
         const data = {
@@ -25,10 +31,12 @@ const Profile = ({ handleCloseOpenProfile }) => {
         dispatch(updateUser(data));
     };
 
+    // 이름 변경 핸들러 함수
     const handleChange = (e) => {
         setUsername(e.target.value);
     };
 
+    // Cloudinary에 이미지를 업로드하는 함수
     const uploadToCloudinary = (pics) => {
         const data = new FormData();
         data.append("file", pics);
@@ -50,6 +58,7 @@ const Profile = ({ handleCloseOpenProfile }) => {
             });
     };
 
+    // 이름을 엔터 키로 업데이트하는 함수
     const handleUpdateName = (e) => {
         if (e.key === "Enter") {
             const data = {
@@ -71,7 +80,7 @@ const Profile = ({ handleCloseOpenProfile }) => {
                 <p className="cursor-pointer font-semibold">Profile</p>
             </div>
 
-            {/* update profile pic section */}
+            {/* 프로필 사진 업데이트 섹션 */}
             <div className="flex flex-col justify-center items-center my-12">
                 <label htmlFor="imgInput">
                     <img
@@ -93,7 +102,7 @@ const Profile = ({ handleCloseOpenProfile }) => {
                 />
             </div>
 
-            {/* name section */}
+            {/* 이름 섹션 */}
             <div className="bg-white px-3">
                 <p className="py-3">Your name</p>
 

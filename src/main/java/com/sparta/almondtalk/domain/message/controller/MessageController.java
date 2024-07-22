@@ -21,46 +21,48 @@ import java.util.List;
 public class MessageController {
 
     @Autowired
-    private MessageServiceImpl messageService;
+    private MessageServiceImpl messageService; // MessageServiceImpl 빈을 주입받음
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserServiceImpl userService; // UserServiceImpl 빈을 주입받음
 
+    // 메시지 전송 핸들러
     @PostMapping("/create")
     public ResponseEntity<Message> sendMessageHandler(@RequestBody SendMessageRequest sendMessageRequest,
                                                       @RequestHeader("Authorization") String jwt) throws UserException, ChatException {
 
-        User user = this.userService.findUserProfile(jwt);
+        User user = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 
-        sendMessageRequest.setUserId(user.getId());
+        sendMessageRequest.setUserId(user.getId()); // 요청에 사용자 ID 설정
 
-        Message message = this.messageService.sendMessage(sendMessageRequest);
+        Message message = this.messageService.sendMessage(sendMessageRequest); // 메시지 전송
 
-        return new ResponseEntity<Message>(message, HttpStatus.OK);
+        return new ResponseEntity<Message>(message, HttpStatus.OK); // 전송된 메시지와 함께 OK 상태 반환
     }
 
+    // 특정 채팅의 모든 메시지를 가져오는 핸들러
     @GetMapping("/{chatId}")
     public ResponseEntity<List<Message>> getChatMessageHandler(@PathVariable Integer chatId,
                                                                @RequestHeader("Authorization") String jwt) throws UserException, ChatException {
 
-        User user = this.userService.findUserProfile(jwt);
+        User user = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 
-        List<Message> messages = this.messageService.getChatsMessages(chatId, user);
+        List<Message> messages = this.messageService.getChatsMessages(chatId, user); // 채팅의 모든 메시지 가져오기
 
-        return new ResponseEntity<List<Message>>(messages, HttpStatus.OK);
+        return new ResponseEntity<List<Message>>(messages, HttpStatus.OK); // 메시지 목록과 함께 OK 상태 반환
     }
 
+    // 메시지 삭제 핸들러
     @DeleteMapping("/{messageId}")
     public ResponseEntity<ApiResponse> deleteMessageHandler(@PathVariable Integer messageId,
                                                             @RequestHeader("Authorization") String jwt) throws UserException, ChatException, MessageException {
 
-        User user = this.userService.findUserProfile(jwt);
+        User user = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 
-        this.messageService.deleteMessage(messageId, user);
+        this.messageService.deleteMessage(messageId, user); // 메시지 삭제
 
-        ApiResponse res = new ApiResponse("Deleted successfully......", false);
+        ApiResponse res = new ApiResponse("Deleted successfully......", false); // 삭제 성공 응답 생성
 
-        return new ResponseEntity<>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK); // 응답과 함께 OK 상태 반환
     }
-
 }

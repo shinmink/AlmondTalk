@@ -17,35 +17,37 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserServiceImpl userService;
+    private UserServiceImpl userService; // UserServiceImpl 빈을 주입받음
 
+    // 사용자 프로필을 가져오는 핸들러
     @GetMapping("/profile")
     public ResponseEntity<User> getUserProfileHandler(@RequestHeader("Authorization") String token)
             throws UserException {
 
-        User user = this.userService.findUserProfile(token);
-        return new ResponseEntity<User>(user, HttpStatus.OK);
+        User user = this.userService.findUserProfile(token); // 토큰을 사용하여 사용자 프로필을 찾음
+        return new ResponseEntity<User>(user, HttpStatus.OK); // 사용자 프로필과 함께 OK 상태 반환
     }
 
+    // 사용자를 검색하는 핸들러
     @GetMapping("/{query}")
     public ResponseEntity<List<User>> searchUserHandler(@PathVariable("query") String query) {
 
-        List<User> users = this.userService.searchUser(query);
-        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
+        List<User> users = this.userService.searchUser(query); // 쿼리를 사용하여 사용자 검색
+        return new ResponseEntity<List<User>>(users, HttpStatus.OK); // 검색된 사용자 목록과 함께 OK 상태 반환
     }
 
+    // 사용자 정보를 업데이트하는 핸들러
     @PutMapping("/update")
     public ResponseEntity<ApiResponse> updateUserHandler(@RequestBody UpdateUserRequest request,
                                                          @RequestHeader("Authorization") String token) throws UserException {
 
-        User user = this.userService.findUserProfile(token);
-        this.userService.updateUser(user.getId(), request);
+        User user = this.userService.findUserProfile(token); // 토큰을 사용하여 사용자 프로필을 찾음
+        this.userService.updateUser(user.getId(), request); // 사용자 ID와 요청 데이터를 사용하여 사용자 정보 업데이트
 
         ApiResponse response = new ApiResponse();
-        response.setMessage("User updated Successfully");
-        response.setStatus(true);
+        response.setMessage("User updated Successfully"); // 성공 메시지 설정
+        response.setStatus(true); // 상태 설정
 
-        return new ResponseEntity<ApiResponse>(response, HttpStatus.ACCEPTED);
+        return new ResponseEntity<ApiResponse>(response, HttpStatus.ACCEPTED); // 응답과 함께 ACCEPTED 상태 반환
     }
-
 }

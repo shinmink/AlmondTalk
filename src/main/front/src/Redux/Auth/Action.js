@@ -8,7 +8,7 @@ import {
     UPDATE_USER,
 } from "./ActionType";
 
-// Action creator for user registration
+// 사용자 회원가입을 위한 액션 생성자
 export const register = (data) => async (dispatch) => {
     try {
         const res = await fetch(`${BASE_API_URL}/auth/signup`, {
@@ -20,7 +20,7 @@ export const register = (data) => async (dispatch) => {
         });
         const resData = await res.json();
 
-        // Store the JWT token in local storage if available
+        // JWT 토큰이 있는 경우 로컬 스토리지에 저장
         if (resData.jwt) localStorage.setItem("token", resData.jwt);
 
         console.log("register", resData);
@@ -30,7 +30,7 @@ export const register = (data) => async (dispatch) => {
     }
 };
 
-// Action creator for user login
+// 사용자 로그인을 위한 액션 생성자
 export const login = (data) => async (dispatch) => {
     try {
         const res = await fetch(`${BASE_API_URL}/auth/signin`, {
@@ -42,7 +42,7 @@ export const login = (data) => async (dispatch) => {
         });
         const resData = await res.json();
 
-        // Store the JWT token in local storage if available
+        // JWT 토큰이 있는 경우 로컬 스토리지에 저장
         if (resData.jwt) localStorage.setItem("token", resData.jwt);
 
         console.log("login", resData);
@@ -52,7 +52,7 @@ export const login = (data) => async (dispatch) => {
     }
 };
 
-// Action creator for fetching the current user's data
+// 현재 사용자 데이터를 가져오는 액션 생성자
 export const currentUser = (token) => async (dispatch) => {
     try {
         const res = await fetch(`${BASE_API_URL}/api/users/profile`, {
@@ -71,7 +71,7 @@ export const currentUser = (token) => async (dispatch) => {
     }
 };
 
-// Action creator for searching for users
+// 사용자를 검색하는 액션 생성자
 export const searchUser = (data) => async (dispatch) => {
     try {
         console.log(data);
@@ -91,7 +91,7 @@ export const searchUser = (data) => async (dispatch) => {
     }
 };
 
-// Action creator for updating user data
+// 사용자 데이터를 업데이트하는 액션 생성자
 export const updateUser = (data) => async (dispatch) => {
     try {
         const res = await fetch(`${BASE_API_URL}/api/users/update`, {
@@ -111,12 +111,12 @@ export const updateUser = (data) => async (dispatch) => {
     }
 };
 
-// Action creator for user logout
+// 사용자 로그아웃을 위한 액션 생성자
 export const logoutAction = () => async (dispatch) => {
-    // Remove the JWT token from local storage
+    // 로컬 스토리지에서 JWT 토큰 제거
     localStorage.removeItem("token");
 
-    // Dispatch actions to indicate logout
+    // 로그아웃을 나타내는 액션 디스패치
     dispatch({ type: LOGOUT, payload: null });
     dispatch({ type: REQ_USER, payload: null });
 };

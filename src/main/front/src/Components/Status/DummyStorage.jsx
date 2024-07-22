@@ -1,3 +1,4 @@
+// stories 배열을 내보내기 (export)
 export const stories = [
     {
         image:

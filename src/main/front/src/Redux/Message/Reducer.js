@@ -1,19 +1,19 @@
 import { CREATE_NEW_MESSAGE, GET_ALL_MESSAGE } from "./ActionType";
 
-// Initial state for the message store
+// 메시지 스토어의 초기 상태
 const initialValue = {
-    messages: null, // Holds an array of messages
-    newMessage: null, // Holds data related to a newly created message
+    messages: null, // 메시지 배열을 저장
+    newMessage: null, // 새로 생성된 메시지 관련 데이터를 저장
 };
 
-// Reducer function for handling message-related actions
+// 메시지 관련 액션을 처리하는 리듀서 함수
 export const messageReducer = (store = initialValue, { type, payload }) => {
-    // Check the action type and update the store accordingly
+    // 액션 타입을 확인하고 스토어를 적절하게 업데이트
     if (type === CREATE_NEW_MESSAGE) {
-        return { ...store, newMessage: payload };
+        return { ...store, newMessage: payload }; // 새로 생성된 메시지 데이터 업데이트
     } else if (type === GET_ALL_MESSAGE) {
-        return { ...store, messages: payload };
+        return { ...store, messages: payload }; // 모든 메시지 데이터 업데이트
     }
-    // If the action type is not recognized, return the current store unchanged
+    // 인식되지 않은 액션 타입의 경우 현재 스토어를 그대로 반환
     return store;
 };

@@ -1,18 +1,18 @@
 # 유저 프로필 조회
 GET http://localhost:8081/api/users/profile
-Authorization: Bearer your_jwt_token_here
+Authorization: {{USER_TOKEN}}
 
 ###
 
 # 유저 검색
 GET http://localhost:8081/api/users/sample_query
-Authorization: Bearer your_jwt_token_here
+Authorization: {{USER_TOKEN}}
 
 ###
 
 # 유저 정보 업데이트
 PUT http://localhost:8081/api/users/update
-Authorization: Bearer your_jwt_token_here
+Authorization: {{USER_TOKEN}}
 Content-Type: application/json
 
 {

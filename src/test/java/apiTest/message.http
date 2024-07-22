@@ -1,6 +1,6 @@
 # 메시지 생성
 POST http://localhost:8081/api/messages/create
-Authorization: Bearer your_jwt_token_here
+Authorization: {{USER_TOKEN}}
 Content-Type: application/json
 
 {
@@ -12,10 +12,10 @@ Content-Type: application/json
 
 # 특정 채팅의 모든 메시지 조회
 GET http://localhost:8081/api/messages/1
-Authorization: Bearer your_jwt_token_here
+Authorization: {{USER_TOKEN}}
 
 ###
 
 # 메시지 삭제
 DELETE http://localhost:8081/api/messages/1
-Authorization: Bearer your_jwt_token_here
+Authorization: {{USER_TOKEN}}

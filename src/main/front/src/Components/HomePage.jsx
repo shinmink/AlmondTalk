@@ -4,10 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
-import { BiCommentDetail } from "react-icons/bi";
-import { TbCircleDashed } from "react-icons/tb";
 import { AiOutlineSearch } from "react-icons/ai";
-import { BsEmojiSmile, BsFilter, BsMicFill, BsThreeDotsVertical } from "react-icons/bs";
+import { BsThreeDotsVertical, BsEmojiSmile, BsMicFill } from "react-icons/bs";
 import { ImAttachment } from "react-icons/im";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -27,18 +25,19 @@ function HomePage() {
     const [currentChat, setCurrentChat] = useState(null); // 현재 선택된 채팅 상태
     const [content, setContent] = useState(""); // 메시지 내용 상태
     const [isProfile, setIsProfile] = useState(false); // 프로필 보기 상태
-    const navigate = useNavigate();
     const [isGroup, setIsGroup] = useState(false); // 그룹 생성 상태
     const [anchorEl, setAnchorEl] = useState(null); // 메뉴 앵커 상태
-    const open = Boolean(anchorEl); // 메뉴 열림 상태
-    const dispatch = useDispatch();
-    const { auth, chat, message } = useSelector((store) => store);
-    const token = localStorage.getItem("token"); // 토큰 가져오기
+    const isMenuOpen = Boolean(anchorEl); // 메뉴 열림 상태
     const [client, setClient] = useState(null); // STOMP 클라이언트 상태
     const [isConnected, setIsConnected] = useState(false); // 클라이언트 연결 상태
     const [messages, setMessages] = useState([]); // 메시지 상태
     const [lastMessages, setLastMessages] = useState({}); // 마지막 메시지 상태
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { auth, chat, message } = useSelector((store) => store);
     const searchUsers = useSelector((store) => store.auth.searchUsers); // 검색된 사용자 상태
+    const token = localStorage.getItem("token"); // 토큰 가져오기
 
     // STOMP 클라이언트 연결 함수
     const connect = () => {
@@ -65,6 +64,7 @@ function HomePage() {
         stompClient.activate();
         setClient(stompClient);
     };
+
 
     // 쿠키 가져오는 함수
     function getCookie(name) {
@@ -104,6 +104,7 @@ function HomePage() {
             client.publish({ destination: "/app/message", body: JSON.stringify(message.newMessage) });
         }
     }, [message.newMessage]);
+
 
     // 메시지 상태가 변경될 때 메시지 설정
     useEffect(() => {
@@ -156,13 +157,6 @@ function HomePage() {
         }
     }, [message.messages]);
 
-    // 메시지 수신 처리 함수
-    const onMessageReceive = (payload) => {
-        console.log("Received message:", JSON.parse(payload.body));
-        const receivedMessage = JSON.parse(payload.body);
-        setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-    };
-
     // 메뉴 열기 핸들러
     const handleClick = (e) => {
         setAnchorEl(e.currentTarget);
@@ -183,14 +177,36 @@ function HomePage() {
         dispatch(searchUser({ keyword, token }));
     };
 
+
     // 새 메시지 생성 핸들러
     const handleCreateNewMessage = () => {
-        dispatch(
-            createMessage({
+        if (client && isConnected) { // 메시지를 보낼 때 클라이언트 연결 상태 확인
+            if (!content.trim()) {
+                console.warn("Message content is empty");
+                return;
+            }
+
+            const newMessage = {
+                chatId: currentChat.id,
+                content: content,
+                sender: auth.reqUser.name,
+                timestamp: new Date().toISOString(),
+            };
+
+            dispatch(createMessage({
                 token,
-                data: { chatId: currentChat.id, content: content },
-            })
-        );
+                data: newMessage,
+            }));
+
+            client.publish({
+                destination: `/app/message`,
+                body: JSON.stringify(newMessage),
+            });
+
+            setContent("");
+        } else {
+            console.error("STOMP client is not connected.");
+        }
     };
 
     // 프로필 보기 상태 설정
@@ -219,6 +235,7 @@ function HomePage() {
         setCurrentChat(item);
     };
 
+
     return (
         <div className="relative">
             <div className="w-[100vw] py-14 bg-[#00a884]">
@@ -226,10 +243,10 @@ function HomePage() {
                     <div className="left w-[30%] h-full bg-[#e8e9ec]">
                         {isProfile && (
                             <div className="w-full h-full">
-                                <Profile handleCloseOpenProfile={handleCloseOpenProfile} />
+                                <Profile handleCloseOpenProfile={handleCloseOpenProfile}/>
                             </div>
                         )}
-                        {isGroup && <CreateGroup setIsGroup={setIsGroup} />}
+                        {isGroup && <CreateGroup setIsGroup={setIsGroup}/>}
 
                         {!isProfile && !isGroup && (
                             <div className="w-full">
@@ -249,16 +266,16 @@ function HomePage() {
                                         <p>{auth.reqUser?.name}</p>
                                     </div>
                                     <Button
-                                        aria-controls={open ? "user-menu" : undefined}
+                                        aria-controls={isMenuOpen ? "user-menu" : undefined}
                                         aria-haspopup="true"
                                         onClick={handleClick}
                                     >
-                                        <BsThreeDotsVertical />
+                                        <BsThreeDotsVertical/>
                                     </Button>
                                     <Menu
                                         id="user-menu"
                                         anchorEl={anchorEl}
-                                        open={open}
+                                        open={isMenuOpen}
                                         onClose={handleClose}
                                     >
                                         <MenuItem onClick={handleCreateGroup}>
@@ -271,7 +288,7 @@ function HomePage() {
                                 </div>
                                 <div className="p-3">
                                     <div className="flex items-center border border-[#ced4da] rounded-lg">
-                                        <AiOutlineSearch />
+                                        <AiOutlineSearch/>
                                         <input
                                             type="text"
                                             className="w-full p-2"
@@ -290,7 +307,9 @@ function HomePage() {
                                             chat.chats.map((item) => (
                                                 <ChatCard
                                                     key={item.id}
-                                                    chat={item}
+                                                    userImg={item.profile || "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="}
+                                                    name={item.name}
+                                                    lastMessage={item.lastMessage}
                                                     onClick={() => handleCurrentChat(item)}
                                                 />
                                             ))}
@@ -299,6 +318,7 @@ function HomePage() {
                             </div>
                         )}
                     </div>
+
 
                     {/* 채팅 및 메시지 섹션 */}
                     <div className="middle w-[40%] bg-[#ffffff]">
@@ -319,12 +339,16 @@ function HomePage() {
                                 </div>
                                 <div className="flex flex-col flex-grow p-3 overflow-y-auto">
                                     {messages.map((msg, index) => (
-                                        <MessageCard key={index} message={msg} />
+                                        <MessageCard
+                                            key={index}
+                                            isReqUserMessage={msg.sender === auth.reqUser.name} // 보낸 이가 현재 로그인된 유저인지 확인
+                                            message={msg} // 메시지 객체 전달
+                                        />
                                     ))}
                                 </div>
                                 <div className="p-3 border-t border-[#ced4da]">
                                     <div className="flex items-center space-x-2">
-                                        <BsEmojiSmile />
+                                        <BsEmojiSmile/>
                                         <input
                                             type="text"
                                             className="w-full p-2 border border-[#ced4da] rounded-lg"
@@ -332,8 +356,8 @@ function HomePage() {
                                             value={content}
                                             onChange={(e) => setContent(e.target.value)}
                                         />
-                                        <ImAttachment />
-                                        <BsMicFill />
+                                        <ImAttachment/>
+                                        <BsMicFill/>
                                         <button
                                             className="bg-[#00a884] text-white p-2 rounded-lg"
                                             onClick={handleCreateNewMessage}

@@ -1,14 +1,19 @@
+import React from "react";
+
 // MessageCard 컴포넌트 정의
-const MessageCard = ({ isReqUserMessage, content }) => {
+const MessageCard = ({ isReqUserMessage, message }) => {
+    if (!message) return null; // message undefined 경우 아무것도 렌더링하지 않음
+
     return (
-        // 메시지 카드 컨테이너, 사용자 메시지 여부에 따라 스타일 적용
-        <div
-            className={`py-2 px-2 wounded-md max-w-[50%] ${
-                isReqUserMessage ? "self-start bg-white" : "self-end bg-[#d9fdd3]"
-            }`}
-        >
-            {/* 메시지 내용 표시 */}
-            <p>{content}</p>
+        <div className={`flex ${isReqUserMessage ? "justify-end" : "justify-start"} my-2`}>
+            <div
+                className={`py-2 px-4 rounded-md max-w-[70%] ${
+                    isReqUserMessage ? "bg-[#d9fdd3] text-black" : "bg-white text-black"
+                }`}
+            >
+                <p className="text-xs text-gray-500 mb-1">{message.sender}</p> {/* sender 이름을 작은 글씨로 출력 */}
+                <p>{message.content}</p>
+            </div>
         </div>
     );
 };

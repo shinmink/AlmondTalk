@@ -11,7 +11,7 @@ const MessageCard = ({ isReqUserMessage, message }) => {
                     isReqUserMessage ? "bg-[#d9fdd3] text-black" : "bg-white text-black"
                 }`}
             >
-                <p className="text-xs text-gray-500 mb-1">{message.sender}</p> {/* sender 이름을 작은 글씨로 출력 */}
+                <p className="text-xs text-gray-500 mb-1">{message.user.name}</p> {/* message.sender 대신 message.user.name 사용 */}
                 <p>{message.content}</p>
             </div>
         </div>

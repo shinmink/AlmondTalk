@@ -1,4 +1,3 @@
-// 필요한 라이브러리 및 컴포넌트 가져오기
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +18,6 @@ import { createChat, getUsersChat } from "../Redux/Chat/Action";
 import { createMessage, getAllMessages } from "../Redux/Message/Action";
 import "./HomePage.css";
 
-// HomePage 컴포넌트 정의
 function HomePage() {
     const [querys, setQuerys] = useState(""); // 검색어 상태
     const [currentChat, setCurrentChat] = useState(null); // 현재 선택된 채팅 상태
@@ -36,7 +34,7 @@ function HomePage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { auth, chat, message } = useSelector((store) => store);
-    const searchUsers = useSelector((store) => store.auth.searchUsers); // 검색된 사용자 상태
+    const searchUsers = useSelector((store) => store.auth.searchUsers) || []; // 검색된 사용자 상태
     const token = localStorage.getItem("token"); // 토큰 가져오기
 
     // STOMP 클라이언트 연결 함수
@@ -51,6 +49,9 @@ function HomePage() {
             debug: (str) => console.log(str),
             onConnect: () => {
                 setIsConnected(true);
+                if (currentChat) {
+                    subscribeToChat(stompClient, currentChat.id); // 연결 시 현재 채팅 구독
+                }
             },
             onDisconnect: () => {
                 setIsConnected(false);
@@ -65,6 +66,13 @@ function HomePage() {
         setClient(stompClient);
     };
 
+    // 채팅 구독 함수
+    const subscribeToChat = (stompClient, chatId) => {
+        stompClient.subscribe(`/group/${chatId}`, (message) => {
+            const receivedMessage = JSON.parse(message.body);
+            setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+        });
+    };
 
     // 쿠키 가져오는 함수
     function getCookie(name) {
@@ -79,32 +87,11 @@ function HomePage() {
         connect();
     }, []);
 
-    // 현재 채팅이 변경될 때마다 메시지 구독 설정
     useEffect(() => {
         if (isConnected && client && auth.reqUser && currentChat) {
-            const subscription = client.subscribe(
-                `/group${currentChat.id}`,
-                (message) => {
-                    console.log("Received message:", JSON.parse(message.body));
-                    const receivedMessage = JSON.parse(message.body);
-                    setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-                }
-            );
-
-            return () => {
-                subscription.unsubscribe();
-            };
+            subscribeToChat(client, currentChat.id);
         }
     }, [isConnected, client, auth.reqUser, currentChat]);
-
-    // 새 메시지가 있을 때 메시지 추가 및 전송
-    useEffect(() => {
-        if (message.newMessage && client) {
-            setMessages((prevMessages) => [...prevMessages, message.newMessage]);
-            client.publish({ destination: "/app/message", body: JSON.stringify(message.newMessage) });
-        }
-    }, [message.newMessage]);
-
 
     // 메시지 상태가 변경될 때 메시지 설정
     useEffect(() => {
@@ -177,7 +164,6 @@ function HomePage() {
         dispatch(searchUser({ keyword, token }));
     };
 
-
     // 새 메시지 생성 핸들러
     const handleCreateNewMessage = () => {
         if (client && isConnected) { // 메시지를 보낼 때 클라이언트 연결 상태 확인
@@ -189,7 +175,7 @@ function HomePage() {
             const newMessage = {
                 chatId: currentChat.id,
                 content: content,
-                sender: auth.reqUser.name,
+                user: auth.reqUser, // 메시지를 보낸 사용자 정보를 포함하도록 수정된 부분
                 timestamp: new Date().toISOString(),
             };
 
@@ -234,7 +220,6 @@ function HomePage() {
     const handleCurrentChat = (item) => {
         setCurrentChat(item);
     };
-
 
     return (
         <div className="relative">
@@ -319,7 +304,6 @@ function HomePage() {
                         )}
                     </div>
 
-
                     {/* 채팅 및 메시지 섹션 */}
                     <div className="middle w-[40%] bg-[#ffffff]">
                         {currentChat ? (
@@ -403,24 +387,23 @@ function HomePage() {
                                 />
                             </div>
                             <div className="py-3">
-                                {searchUsers &&
-                                    searchUsers.map((user) => (
-                                        <div
-                                            key={user.id}
-                                            className="flex items-center space-x-3 p-2 border-b border-[#ced4da]"
-                                            onClick={() => handleClickOnChatCard(user.id)}
-                                        >
-                                            <img
-                                                className="rounded-full w-10 h-10"
-                                                src={
-                                                    user.profile ||
-                                                    "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="
-                                                }
-                                                alt="profile"
-                                            />
-                                            <p>{user.name}</p>
-                                        </div>
-                                    ))}
+                                {searchUsers.length > 0 && searchUsers.map((user) => (
+                                    <div
+                                        key={user.id}
+                                        className="flex items-center space-x-3 p-2 border-b border-[#ced4da]"
+                                        onClick={() => handleClickOnChatCard(user.id)}
+                                    >
+                                        <img
+                                            className="rounded-full w-10 h-10"
+                                            src={
+                                                user.profile ||
+                                                "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="
+                                            }
+                                            alt="profile"
+                                        />
+                                        <p>{user.name}</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

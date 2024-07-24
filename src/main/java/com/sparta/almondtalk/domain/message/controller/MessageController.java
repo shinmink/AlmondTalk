@@ -12,6 +12,7 @@ import com.sparta.almondtalk.global.exception.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,9 @@ public class MessageController {
     @Autowired
     private UserServiceImpl userService; // UserServiceImpl 빈을 주입받음
 
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate; // 추가된 부분
+
     // 메시지 전송 핸들러
     @PostMapping("/create")
     public ResponseEntity<Message> sendMessageHandler(
@@ -38,6 +42,9 @@ public class MessageController {
         sendMessageRequest.setUserId(user.getId()); // 요청에 사용자 ID 설정
 
         Message message = this.messageService.sendMessage(sendMessageRequest); // 메시지 전송
+
+        // 메시지를 WebSocket을 통해 클라이언트에 전송 - 추가된 부분
+        messagingTemplate.convertAndSend("/group/" + message.getChat().getId(), message);
 
         return new ResponseEntity<Message>(message, HttpStatus.OK); // 전송된 메시지와 함께 OK 상태 반환
     }

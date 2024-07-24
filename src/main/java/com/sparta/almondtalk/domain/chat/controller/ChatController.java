@@ -36,7 +36,7 @@ public class ChatController {
 
         Chat chat = this.chatService.createChat(reqUser, singleChatRequest.getUserId()); // 단일 채팅 생성
 
-        return new ResponseEntity<Chat>(chat, HttpStatus.CREATED); // 생성된 채팅과 함께 HTTP 상태 코드 201(CREATED)을 반환
+        return new ResponseEntity<>(chat, HttpStatus.CREATED); // 생성된 채팅과 함께 HTTP 상태 코드 201(CREATED)을 반환
     }
 
     // 그룹 채팅을 생성하는 핸들러
@@ -49,7 +49,7 @@ public class ChatController {
 
         Chat chat = this.chatService.createGroup(groupChatRequest, reqUser); // 그룹 채팅 생성
 
-        return new ResponseEntity<Chat>(chat, HttpStatus.CREATED); // 생성된 그룹 채팅과 함께 HTTP 상태 코드 201(CREATED)을 반환
+        return new ResponseEntity<>(chat, HttpStatus.CREATED); // 생성된 그룹 채팅과 함께 HTTP 상태 코드 201(CREATED)을 반환
     }
 
     // 특정 채팅을 ID로 찾는 핸들러
@@ -58,7 +58,7 @@ public class ChatController {
 
         Chat chat = this.chatService.findChatById(chatId); // 채팅 ID로 채팅 찾기
 
-        return new ResponseEntity<Chat>(chat, HttpStatus.OK); // 찾은 채팅과 함께 HTTP 상태 코드 200(OK)을 반환
+        return new ResponseEntity<>(chat, HttpStatus.OK); // 찾은 채팅과 함께 HTTP 상태 코드 200(OK)을 반환
     }
 
     // 사용자의 모든 채팅을 찾는 핸들러
@@ -70,7 +70,7 @@ public class ChatController {
 
         List<Chat> chats = this.chatService.findAllChatByUserId(reqUser.getId()); // 사용자 ID로 모든 채팅 찾기
 
-        return new ResponseEntity<List<Chat>>(chats, HttpStatus.OK); // 찾은 채팅 목록과 함께 HTTP 상태 코드 200(OK)을 반환
+        return new ResponseEntity<>(chats, HttpStatus.OK); // 찾은 채팅 목록과 함께 HTTP 상태 코드 200(OK)을 반환
     }
 
     // 그룹에 사용자를 추가하는 핸들러

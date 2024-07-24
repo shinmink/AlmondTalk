@@ -4,9 +4,8 @@ import React from "react";
 const ChatCard = ({ userImg, name, lastMessage, onClick }) => {
     // 타임스탬프를 읽기 쉬운 날짜 형식으로 포맷하는 함수
     const formatTimestamp = (timestamp) => {
-        if (!timestamp) return ""; // 타임스탬프가 없을 경우 빈 문자열 반환
+        if (!timestamp) return "";
 
-        // 날짜를 "년-월-일" 형식으로 포맷
         const options = { year: "numeric", month: "short", day: "numeric" };
         return new Date(timestamp).toLocaleDateString(undefined, options);
     };
@@ -21,7 +20,7 @@ const ChatCard = ({ userImg, name, lastMessage, onClick }) => {
             {/* 사용자 이름 및 마지막 메시지를 표시하는 div */}
             <div className="pl-5 w-[80%]">
                 <div className="flex justify-between items-center">
-                    <p className="text-lg">{name}</p> {/* 사용자 이름 표시 */}
+                    <p className="text-lg">{name}</p> {/* 채팅방 이름 표시 */}
                     <p className="text-sm">
                         {/* 마지막 메시지가 있을 경우, 타임스탬프를 포맷하여 표시 */}
                         {lastMessage ? formatTimestamp(lastMessage.timestamp) : ""}
@@ -35,10 +34,8 @@ const ChatCard = ({ userImg, name, lastMessage, onClick }) => {
                     <div className="flex space-x-2">
                         {/* 메시지가 몇 시간 전에 도착했는지 표시 (하드코딩된 "3h") */}
                         <span className="text-gray-500 text-xs">3h</span>
-                        {/* 새로운 메시지가 있을 경우에만 녹색 원을 표시하도록 조건부 렌더링 추가 */}
-                        {lastMessage && lastMessage.isNew && (
-                            <span className="bg-green-500 h-2 w-2 rounded-full"></span>
-                        )}
+                        {/* 새로운 메시지가 있을 경우 표시할 녹색 원 */}
+                        <span className="bg-green-500 h-2 w-2 rounded-full"></span>
                     </div>
                 </div>
             </div>

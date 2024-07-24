@@ -308,7 +308,7 @@ function HomePage() {
                                                 <ChatCard
                                                     key={item.id}
                                                     userImg={item.profile || "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="}
-                                                    name={item.name}
+                                                    name={item.chatName} // 수정된 부분: 채팅방 이름 전달
                                                     lastMessage={item.lastMessage}
                                                     onClick={() => handleCurrentChat(item)}
                                                 />
@@ -334,14 +334,24 @@ function HomePage() {
                                             }
                                             alt="profile"
                                         />
-                                        <p>{currentChat.name}</p>
+                                        <div>
+                                            <p>{currentChat.chatName}</p> {/* 채팅방 이름 표시 */}
+                                            <p className="text-xs text-gray-500">
+                                                {currentChat.users.map(user => (
+                                                    <span key={user.id}
+                                                          className={user.id === currentChat.createdBy.id ? 'font-bold' : ''}>
+                                                        {user.name}
+                                                    </span>
+                                                )).reduce((prev, curr) => [prev, ', ', curr])} {/* 참가자 이름 표시, 생성자 이름 진하게 */}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex flex-col flex-grow p-3 overflow-y-auto">
                                     {messages.map((msg, index) => (
                                         <MessageCard
                                             key={index}
-                                            isReqUserMessage={msg.sender === auth.reqUser.name} // 보낸 이가 현재 로그인된 유저인지 확인
+                                            isReqUserMessage={msg.user.id === auth.reqUser.id} // 보낸 이가 현재 로그인된 유저인지 확인
                                             message={msg} // 메시지 객체 전달
                                         />
                                     ))}

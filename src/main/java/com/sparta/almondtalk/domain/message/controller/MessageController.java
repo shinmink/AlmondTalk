@@ -28,8 +28,10 @@ public class MessageController {
 
     // 메시지 전송 핸들러
     @PostMapping("/create")
-    public ResponseEntity<Message> sendMessageHandler(@RequestBody SendMessageRequest sendMessageRequest,
-                                                      @RequestHeader("Authorization") String jwt) throws UserException, ChatException {
+    public ResponseEntity<Message> sendMessageHandler(
+            @RequestBody SendMessageRequest sendMessageRequest,
+            @RequestHeader("Authorization") String jwt
+    ) throws UserException, ChatException {
 
         User user = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 
@@ -42,8 +44,10 @@ public class MessageController {
 
     // 특정 채팅의 모든 메시지를 가져오는 핸들러
     @GetMapping("/{chatId}")
-    public ResponseEntity<List<Message>> getChatMessageHandler(@PathVariable Integer chatId,
-                                                               @RequestHeader("Authorization") String jwt) throws UserException, ChatException {
+    public ResponseEntity<List<Message>> getChatMessageHandler(
+            @PathVariable Integer chatId,
+            @RequestHeader("Authorization") String jwt
+    ) throws UserException, ChatException {
 
         User user = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 

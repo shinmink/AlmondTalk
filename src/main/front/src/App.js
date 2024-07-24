@@ -1,10 +1,10 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import HomePage from "./Components/HomePage";
-import Status from "./Components/Status/Status";
-import StatusViewer from "./Components/Status/StatusViewer";
-import Signin from "./Components/Register/Signin";
-import Signup from "./Components/Register/Signup";
+import HomePage from "./components/HomePage";
+import Status from "./components/Status/Status";
+import StatusViewer from "./components/Status/StatusViewer";
+import Signin from "./components/Register/Signin";
+import Signup from "./components/Register/Signup";
 
 function App() {
   return (

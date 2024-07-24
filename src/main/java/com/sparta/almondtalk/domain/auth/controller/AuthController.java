@@ -52,10 +52,10 @@ public class AuthController {
         User createdUser = new User();
         createdUser.setEmail(email);
         createdUser.setName(name);
-        // createdUser.setPassword(this.passwordEncoder.encode(password));
-        createdUser.setPassword(password); // 비밀번호 암호화 생략
+        createdUser.setPassword(this.passwordEncoder.encode(password)); // 비밀번호 암호화
 
         userRepository.save(createdUser); // 사용자 정보 저장
+
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
         SecurityContextHolder.getContext().setAuthentication(authentication); // 인증 설정
@@ -66,6 +66,7 @@ public class AuthController {
 
         return new ResponseEntity<AuthResponse>(response, HttpStatus.ACCEPTED); // 응답 반환
     }
+
 
     // 로그인 처리를 하는 핸들러
     @PostMapping("/signin")
@@ -86,6 +87,7 @@ public class AuthController {
         return new ResponseEntity<AuthResponse>(response, HttpStatus.ACCEPTED); // 응답 반환
     }
 
+
     // 사용자 인증을 처리하는 메서드
     public Authentication authenticate(String username, String password) {
         UserDetails userDetails = this.customUserService.loadUserByUsername(username); // 사용자 정보 로드
@@ -93,6 +95,7 @@ public class AuthController {
         if (userDetails == null) {
             throw new BadCredentialsException("Invalid username"); // 사용자 정보가 없을 경우 예외 발생
         }
+
 
         System.out.println(password);
         System.out.println(userDetails.getPassword());

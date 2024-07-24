@@ -21,7 +21,6 @@ public class AppConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
@@ -31,14 +30,13 @@ public class AppConfig {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration cfg = new CorsConfiguration();
-
                         cfg.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
                         cfg.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000"));
-
                         cfg.setAllowedMethods(Collections.singletonList("*"));
                         cfg.setAllowedHeaders(Collections.singletonList("*"));
                         cfg.setExposedHeaders(Arrays.asList("Authorization"));
                         cfg.setMaxAge(3600L);
+                        cfg.setAllowCredentials(true); // 인증 정보 포함 허용
 
                         return cfg;
                     }
@@ -48,7 +46,7 @@ public class AppConfig {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

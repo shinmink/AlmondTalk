@@ -1,5 +1,5 @@
 import { combineReducers, legacy_createStore, applyMiddleware } from "redux";
-import thunk from "redux-thunk"; // 기본 내보내기로 redux-thunk를 가져옵니다.
+import { thunk } from "redux-thunk"; // 기본 내보내기로 redux-thunk를 가져옵니다.
 import { authReducer } from "./Auth/Reducer";
 import { chatReducer } from "./Chat/Reducer";
 import { messageReducer } from "./Message/Reducer";

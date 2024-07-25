@@ -1,5 +1,6 @@
+// 필요한 라이브러리 및 상수 가져오기
 import { BASE_API_URL } from "../../config/api";
-import { CREATE_NEW_MESSAGE, GET_ALL_MESSAGE } from "./ActionType.js";
+import { CREATE_NEW_MESSAGE, GET_ALL_MESSAGE, DELETE_MESSAGE } from "./ActionType.js";
 
 // 새로운 메시지를 생성하기 위한 액션 생성자
 export const createMessage = (messageData) => async (dispatch) => {
@@ -24,6 +25,7 @@ export const createMessage = (messageData) => async (dispatch) => {
     }
 };
 
+
 // 채팅의 모든 메시지를 가져오기 위한 액션 생성자
 export const getAllMessages = (reqData) => async (dispatch) => {
     console.log("Came inside get all messages");
@@ -47,3 +49,23 @@ export const getAllMessages = (reqData) => async (dispatch) => {
         console.log("catch error ", error);
     }
 };
+
+// 메시지를 삭제하기 위한 액션 생성자 - 수정된 부분
+export const deleteMessage = (messageId, token) => async (dispatch) => {
+    try {
+        // DELETE 요청을 통해 메시지 삭제
+        await fetch(`${BASE_API_URL}/api/messages/${messageId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`, // 인증 헤더 추가
+            },
+        });
+
+        // 메시지 삭제 액션 디스패치
+        dispatch({ type: DELETE_MESSAGE, payload: messageId });
+    } catch (error) {
+        console.log("catch error ", error);
+    }
+};
+

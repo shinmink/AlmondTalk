@@ -30,6 +30,8 @@ function HomePage() {
     const [isConnected, setIsConnected] = useState(false); // 클라이언트 연결 상태
     const [messages, setMessages] = useState([]); // 메시지 상태
     const [lastMessages, setLastMessages] = useState({}); // 마지막 메시지 상태
+    const [lastReadTimestamps, setLastReadTimestamps] = useState({}); // 마지막 읽은 메시지의 타임스탬프 상태
+
 
     const messagesEndRef = useRef(null); // 스크롤을 위한 useRef 추가
 
@@ -306,8 +308,9 @@ function HomePage() {
                                                 <ChatCard
                                                     key={item.id}
                                                     userImg={item.profile || "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="}
-                                                    name={item.chatName} // 수정된 부분: 채팅방 이름 전달
-                                                    lastMessage={item.lastMessage}
+                                                    name={item.chatName} // 채팅방 이름 전달
+                                                    lastMessage={lastMessages[item.id]} // 마지막 메시지 전달 (수정된 부분)
+                                                    lastReadTimestamp={lastReadTimestamps[item.id]} // 마지막 읽은 타임스탬프 전달
                                                     onClick={() => handleCurrentChat(item)}
                                                 />
                                             ))}

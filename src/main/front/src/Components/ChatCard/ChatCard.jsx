@@ -37,8 +37,6 @@ const ChatCard = ({ userImg, name, lastMessage, lastReadTimestamp, onClick }) =>
                 </div>
                 <div className="flex justify-between items-center">
                     <div className="flex space-x-2">
-                        {/* 메시지가 몇 시간 전에 도착했는지 표시 (하드코딩된 "3h") */}
-                        <span className="text-gray-500 text-xs">3h</span>
                         {/* 새로운 메시지가 있을 경우 표시할 녹색 원 */}
                         {isNewMessage() && <span className="bg-green-500 h-2 w-2 rounded-full"></span>}
                     </div>

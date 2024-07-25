@@ -75,11 +75,20 @@ function HomePage() {
         setClient(stompClient);
     };
 
+    // 마지막 메시지 및 읽은 타임스탬프 업데이트 함수 - 수정된 부분
+    const updateLastMessages = (chatId, message) => {
+        setLastMessages((prevLastMessages) => ({
+            ...prevLastMessages,
+            [chatId]: message,
+        }));
+    };
+
     // 채팅 구독 함수
     const subscribeToChat = (stompClient, chatId) => {
         stompClient.subscribe(`/group/${chatId}`, (message) => {
             const receivedMessage = JSON.parse(message.body);
             setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+            updateLastMessages(chatId, receivedMessage); // 수정된 부분: 마지막 메시지 업데이트 함수 호출
         });
     };
 
@@ -119,6 +128,10 @@ function HomePage() {
     useEffect(() => {
         if (currentChat?.id) {
             dispatch(getAllMessages({ chatId: currentChat.id, token }));
+            setLastReadTimestamps((prevTimestamps) => ({
+                ...prevTimestamps,
+                [currentChat.id]: new Date().toISOString(), // 수정된 부분: 마지막 읽은 타임스탬프 업데이트
+            }));
         }
     }, [currentChat, message.newMessage]);
 
@@ -234,6 +247,10 @@ function HomePage() {
     // 현재 채팅 설정
     const handleCurrentChat = (item) => {
         setCurrentChat(item);
+        setLastReadTimestamps((prevTimestamps) => ({
+            ...prevTimestamps,
+            [item.id]: new Date().toISOString(), // 수정된 부분: 채팅 클릭 시 마지막 읽은 타임스탬프 업데이트
+        }));
     };
 
     return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react"; // useRef 추가
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SockJS from "sockjs-client";
@@ -31,11 +31,18 @@ function HomePage() {
     const [messages, setMessages] = useState([]); // 메시지 상태
     const [lastMessages, setLastMessages] = useState({}); // 마지막 메시지 상태
 
+    const messagesEndRef = useRef(null); // 스크롤을 위한 useRef 추가
+
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { auth, chat, message } = useSelector((store) => store);
     const searchUsers = useSelector((store) => store.auth.searchUsers) || []; // 검색된 사용자 상태
     const token = localStorage.getItem("token"); // 토큰 가져오기
+
+    // 스크롤을 맨 아래로 이동시키는 함수
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     // STOMP 클라이언트 연결 함수
     const connect = () => {
@@ -93,12 +100,18 @@ function HomePage() {
         }
     }, [isConnected, client, auth.reqUser, currentChat]);
 
-    // 메시지 상태가 변경될 때 메시지 설정
+    // 메시지 상태가 변경될 때 메시지 설정 및 스크롤 이동
     useEffect(() => {
         if (message.messages) {
             setMessages(message.messages);
+            scrollToBottom(); // 스크롤을 맨 아래로 이동
         }
     }, [message.messages]);
+
+    // 메시지가 추가될 때마다 스크롤을 맨 아래로 이동
+    useEffect(() => {
+        scrollToBottom(); // 스크롤을 맨 아래로 이동
+    }, [messages]);
 
     // 현재 채팅이 변경될 때 모든 메시지 가져오기
     useEffect(() => {
@@ -339,6 +352,7 @@ function HomePage() {
                                             message={msg} // 메시지 객체 전달
                                         />
                                     ))}
+                                    <div ref={messagesEndRef} /> {/* 스크롤을 위한 div 추가 */}
                                 </div>
                                 <div className="p-3 border-t border-[#ced4da]">
                                     <div className="flex items-center space-x-2">

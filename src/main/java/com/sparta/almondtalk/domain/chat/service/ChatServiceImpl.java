@@ -4,11 +4,14 @@ import com.sparta.almondtalk.domain.chat.model.Chat;
 import com.sparta.almondtalk.domain.chat.repository.ChatRepository;
 import com.sparta.almondtalk.domain.chat.request.GroupChatRequest;
 import com.sparta.almondtalk.domain.chat.request.UpdateGroupRequest;
+import com.sparta.almondtalk.domain.message.repository.MessageRepository;
 import com.sparta.almondtalk.domain.user.model.User;
 import com.sparta.almondtalk.domain.user.service.UserServiceImpl;
 import com.sparta.almondtalk.global.exception.ChatException;
 import com.sparta.almondtalk.global.exception.UserException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +24,12 @@ public class ChatServiceImpl implements ChatService {
 
     @Autowired
     private ChatRepository chatRepository; // 채팅 저장소 의존성 주입
+
+    @Autowired
+    private MessageRepository messageRepository; // 메시지 저장소 의존성 주입
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate; // WebSocket 메시지 전송을 위한 빈 주입
 
     @Override
     public Chat createChat(User reqUser, Integer userId) throws UserException {
@@ -106,6 +115,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public Chat updateGroup(Integer chatId, UpdateGroupRequest updateGroupRequest, User reqUser) throws ChatException, UserException {
         Chat chat = this.chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatException("The expected chat is not found"));
@@ -114,9 +124,14 @@ public class ChatServiceImpl implements ChatService {
         if (chat.getUsers().contains(reqUser)) {
             chat.setChatName(updateGroupRequest.getChatName());
             chat.setChatImage(updateGroupRequest.getChatImage());
-            return this.chatRepository.save(chat);
+            Chat updatedChat = this.chatRepository.save(chat);
+
+            // WebSocket을 통해 변경 사항 브로드캐스트
+            messagingTemplate.convertAndSend("/topic/chat/" + chatId, updatedChat);
+
+            return updatedChat;
         } else {
-            throw new UserException("You are not authorized to update this group");
+            throw new UserException("You are not the user");
         }
     }
 
@@ -145,12 +160,20 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    @Transactional
     public void deleteChat(Integer chatId, Integer userId) throws ChatException, UserException {
         // 채팅 ID로 채팅 찾기
         Chat chat = this.chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatException("The expected chat is not found while deleting"));
+
+        // 채팅방에 속한 메시지 삭제
+        this.messageRepository.deleteByChatId(chatId);
+
         // 채팅 삭제
         this.chatRepository.delete(chat);
+
+        // WebSocket을 통해 삭제 알림 브로드캐스트
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/delete", chatId);
     }
 
 }

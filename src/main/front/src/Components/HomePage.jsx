@@ -15,7 +15,7 @@ import Profile from "./Profile/Profile";
 import CreateGroup from "./Group/CreateGroup";
 import EditGroup from "./Group/EditGroup"; // EditGroup 컴포넌트 추가
 import { currentUser, logoutAction, searchUser } from "../Redux/Auth/Action";
-import { createChat, getUsersChat, updateChat } from "../Redux/Chat/Action"; // updateChat 액션 추가
+import { createChat, getUsersChat, updateChat, deleteChat } from "../Redux/Chat/Action"; // updateChat 액션 추가
 import { createMessage, getAllMessages } from "../Redux/Message/Action";
 import "./HomePage.css";
 
@@ -92,7 +92,29 @@ function HomePage() {
             setMessages((prevMessages) => [...prevMessages, receivedMessage]);
             updateLastMessages(chatId, receivedMessage); // 마지막 메시지 업데이트 함수 호출
         });
+
+        // 채팅방 수정 구독
+        stompClient.subscribe(`/topic/chat/${chatId}`, (message) => {
+            const updatedChat = JSON.parse(message.body);
+            if (updatedChat.id === currentChat.id) {
+                setCurrentChat((prevChat) => ({
+                    ...prevChat,
+                    chatName: updatedChat.chatName,
+                    chatImage: updatedChat.chatImage,
+                }));
+            }
+        });
+
+        // 채팅방 삭제 구독
+        stompClient.subscribe(`/topic/chat/${chatId}/delete`, (message) => {
+            const deletedChatId = JSON.parse(message.body);
+            if (deletedChatId === currentChat.id) {
+                setCurrentChat(null); // 현재 채팅방이 삭제된 경우
+                alert("채팅방이 삭제되었습니다.");
+            }
+        });
     };
+
 
     // 쿠키 가져오는 함수
     function getCookie(name) {
@@ -274,8 +296,10 @@ function HomePage() {
 
     // 채팅방 삭제하기 버튼 클릭 시 동작
     const handleDeleteChat = () => {
-        // TODO: 채팅방 삭제 로직 구현
-        console.log("Delete Chat");
+        if (currentChat) {
+            dispatch(deleteChat(currentChat.id, token));
+            setCurrentChat(null); // 현재 채팅 초기화
+        }
         handleChatMenuClose();
     };
 

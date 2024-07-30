@@ -1,36 +1,17 @@
 package com.sparta.almondtalk.domain.chat.request;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Setter
+@Getter
 public class GroupChatRequest {
 
     private List<Integer> userIds;
     private String chatName;
     private String chatImage;
-
-    public List<Integer> getUserIds() {
-        return userIds;
-    }
-
-    public void setUserIds(List<Integer> userIds) {
-        this.userIds = userIds;
-    }
-
-    public String getChatName() {
-        return chatName;
-    }
-
-    public void setChatName(String chatName) {
-        this.chatName = chatName;
-    }
-
-    public String getChatImage() {
-        return chatImage;
-    }
-
-    public void setChatImage(String chatImage) {
-        this.chatImage = chatImage;
-    }
 
     public GroupChatRequest() {
     }

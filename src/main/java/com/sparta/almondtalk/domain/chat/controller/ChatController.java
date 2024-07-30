@@ -3,6 +3,7 @@ package com.sparta.almondtalk.domain.chat.controller;
 import com.sparta.almondtalk.domain.chat.model.Chat;
 import com.sparta.almondtalk.domain.chat.request.GroupChatRequest;
 import com.sparta.almondtalk.domain.chat.request.SingleChatRequest;
+import com.sparta.almondtalk.domain.chat.request.UpdateGroupRequest;
 import com.sparta.almondtalk.domain.chat.service.ChatServiceImpl;
 import com.sparta.almondtalk.domain.home.response.ApiResponse;
 import com.sparta.almondtalk.domain.user.model.User;
@@ -84,6 +85,20 @@ public class ChatController {
         Chat chat = this.chatService.addUserToGroup(userId, chatId, reqUser); // 그룹에 사용자 추가
 
         return new ResponseEntity<>(chat, HttpStatus.OK); // 업데이트된 채팅과 함께 HTTP 상태 코드 200(OK)을 반환
+    }
+
+    // 그룹 정보를 업데이트하는 핸들러 추가
+    @PutMapping("/{chatId}/update")
+    public ResponseEntity<Chat> updateGroupHandler(@PathVariable Integer chatId,
+                                                   @RequestBody UpdateGroupRequest updateGroupRequest,
+                                                   @RequestHeader("Authorization") String jwt)
+            throws UserException, ChatException {
+
+        User reqUser = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
+
+        Chat chat = this.chatService.updateGroup(chatId, updateGroupRequest, reqUser); // 그룹 정보 업데이트
+
+        return new ResponseEntity<>(chat, HttpStatus.OK); // 업데이트된 그룹 정보와 함께 HTTP 상태 코드 200(OK)을 반환
     }
 
     // 그룹에서 사용자를 제거하는 핸들러

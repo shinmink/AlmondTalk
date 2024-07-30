@@ -72,7 +72,7 @@ export const getUsersChat = (chatData) => async (dispatch) => {
 
 };
 
-// 채팅을 삭제하기 위한 액션 생성자 - 수정된 부분
+// 채팅을 삭제하기 위한 액션 생성자
 export const deleteChat = (chatId, token) => async (dispatch) => {
     try {
         // DELETE 요청을 통해 채팅 삭제
@@ -92,7 +92,7 @@ export const deleteChat = (chatId, token) => async (dispatch) => {
 };
 
 
-// 채팅을 나가기 위한 액션 생성자 - 수정된 부분
+// 채팅을 나가기 위한 액션 생성자
 export const leaveChat = (chatId, token) => async (dispatch) => {
     try {
         // PUT 요청을 통해 채팅 나가기
@@ -111,21 +111,21 @@ export const leaveChat = (chatId, token) => async (dispatch) => {
     }
 };
 
-// 채팅을 수정하기 위한 액션 생성자 - 수정된 부분
-export const updateChat = (chatId, groupChatData, token) => async (dispatch) => {
+// 채팅을 수정하기 위한 액션 생성자
+export const updateChat = (chatData, token) => async (dispatch) => {
     try {
         // PUT 요청을 통해 채팅 수정
-        const res = await fetch(`${BASE_API_URL}/api/chats/${chatId}/update`, {
+        const res = await fetch(`${BASE_API_URL}/api/chats/${chatData.id}/update`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`, // 인증 헤더 추가
             },
-            body: JSON.stringify(groupChatData), // 요청 본문에 수정된 채팅 데이터 추가
+            body: JSON.stringify(chatData), // 요청 본문에 수정된 채팅 데이터 추가
         });
 
         const data = await res.json();
-        console.log("update chat ", data);
+        console.log("Updated Chat Data from Server:", data); // 서버로부터 받은 데이터 로그
 
         // 수정된 채팅 데이터를 포함하는 액션 디스패치
         dispatch({ type: UPDATE_CHAT, payload: data });
@@ -133,3 +133,4 @@ export const updateChat = (chatId, groupChatData, token) => async (dispatch) => 
         console.log("catch error ", error);
     }
 };
+

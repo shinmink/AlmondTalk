@@ -13,8 +13,9 @@ import ChatCard from "./ChatCard/ChatCard";
 import MessageCard from "./MessageCard/MessageCard";
 import Profile from "./Profile/Profile";
 import CreateGroup from "./Group/CreateGroup";
+import EditGroup from "./Group/EditGroup"; // EditGroup 컴포넌트 추가
 import { currentUser, logoutAction, searchUser } from "../Redux/Auth/Action";
-import { createChat, getUsersChat } from "../Redux/Chat/Action";
+import { createChat, getUsersChat, updateChat } from "../Redux/Chat/Action"; // updateChat 액션 추가
 import { createMessage, getAllMessages } from "../Redux/Message/Action";
 import "./HomePage.css";
 
@@ -24,6 +25,7 @@ function HomePage() {
     const [content, setContent] = useState(""); // 메시지 내용 상태
     const [isProfile, setIsProfile] = useState(false); // 프로필 보기 상태
     const [isGroup, setIsGroup] = useState(false); // 그룹 생성 상태
+    const [isEditGroup, setIsEditGroup] = useState(false); // 그룹 수정 상태 추가
     const [anchorEl, setAnchorEl] = useState(null); // 메뉴 앵커 상태
     const isMenuOpen = Boolean(anchorEl); // 메뉴 열림 상태
     const [client, setClient] = useState(null); // STOMP 클라이언트 상태
@@ -138,7 +140,7 @@ function HomePage() {
     // 사용자 채팅 가져오기
     useEffect(() => {
         dispatch(getUsersChat({ token }));
-    }, [chat.createdChat, chat.createdGroup]);
+    }, [chat.createdChat, chat.createdGroup, chat.updatedChat]);
 
     // 로그인된 사용자가 없을 경우 로그인 페이지로 이동
     useEffect(() => {
@@ -263,10 +265,10 @@ function HomePage() {
         }));
     };
 
+
     // 채팅방 수정하기 버튼 클릭 시 동작
     const handleEditChat = () => {
-        // TODO: 채팅방 수정 로직 구현
-        console.log("Edit Chat");
+        setIsEditGroup(true); // 수정 모드로 전환
         handleChatMenuClose();
     };
 
@@ -302,8 +304,22 @@ function HomePage() {
                             </div>
                         )}
                         {isGroup && <CreateGroup setIsGroup={setIsGroup}/>}
+                        {isEditGroup && (
+                            <EditGroup
+                                currentChat={currentChat}
+                                setIsEditGroup={setIsEditGroup}
+                                // 수정된 데이터를 실시간으로 반영
+                                onUpdate={(updatedChat) => {
+                                    setCurrentChat(prevChat => ({
+                                        ...prevChat,
+                                        chatName: updatedChat.chatName,
+                                        chatImage: updatedChat.chatImage,
+                                    })); // currentChat 상태 업데이트
+                                }}
+                            />
+                        )} {/* EditGroup 컴포넌트 추가 */}
 
-                        {!isProfile && !isGroup && (
+                        {!isProfile && !isGroup && !isEditGroup && (
                             <div className="w-full">
                                 <div className="flex justify-between items-center p-3">
                                     <div
@@ -334,10 +350,10 @@ function HomePage() {
                                         onClose={handleClose}
                                     >
                                         <MenuItem onClick={handleCreateGroup}>
-                                            Create New Group
+                                            새로운 채팅방 만들기
                                         </MenuItem>
                                         <MenuItem onClick={handleLogout}>
-                                            Logout
+                                            로그아웃
                                         </MenuItem>
                                     </Menu>
                                 </div>
@@ -362,9 +378,9 @@ function HomePage() {
                                             chat.chats.map((item) => (
                                                 <ChatCard
                                                     key={item.id}
-                                                    userImg={item.profile || "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="}
+                                                    userImg={item.chatImage || "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="}
                                                     name={item.chatName} // 채팅방 이름 전달
-                                                    lastMessage={lastMessages[item.id]} // 마지막 메시지 전달 (수정된 부분)
+                                                    lastMessage={lastMessages[item.id]} // 마지막 메시지 전달
                                                     lastReadTimestamp={lastReadTimestamps[item.id]} // 마지막 읽은 타임스탬프 전달
                                                     onClick={() => handleCurrentChat(item)}
                                                 />
@@ -384,7 +400,7 @@ function HomePage() {
                                         <img
                                             className="rounded-full w-10 h-10"
                                             src={
-                                                currentChat.profile ||
+                                                currentChat.chatImage || // chatImage로 수정
                                                 "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="
                                             }
                                             alt="profile"

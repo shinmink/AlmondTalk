@@ -3,6 +3,7 @@ package com.sparta.almondtalk.domain.chat.service;
 import com.sparta.almondtalk.domain.chat.model.Chat;
 import com.sparta.almondtalk.domain.chat.repository.ChatRepository;
 import com.sparta.almondtalk.domain.chat.request.GroupChatRequest;
+import com.sparta.almondtalk.domain.chat.request.UpdateGroupRequest;
 import com.sparta.almondtalk.domain.user.model.User;
 import com.sparta.almondtalk.domain.user.service.UserServiceImpl;
 import com.sparta.almondtalk.global.exception.ChatException;
@@ -105,19 +106,20 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Chat renameGroup(Integer chatId, String groupName, User reqUser) throws ChatException, UserException {
-        // 채팅 ID로 채팅 찾기
+    public Chat updateGroup(Integer chatId, UpdateGroupRequest updateGroupRequest, User reqUser) throws ChatException, UserException {
         Chat chat = this.chatRepository.findById(chatId)
                 .orElseThrow(() -> new ChatException("The expected chat is not found"));
 
         // 요청한 사용자가 채팅에 속해 있는지 확인
         if (chat.getUsers().contains(reqUser)) {
-            chat.setChatName(groupName);
+            chat.setChatName(updateGroupRequest.getChatName());
+            chat.setChatImage(updateGroupRequest.getChatImage());
             return this.chatRepository.save(chat);
         } else {
-            throw new UserException("You are not the user");
+            throw new UserException("You are not authorized to update this group");
         }
     }
+
 
     @Override
     public Chat removeFromGroup(Integer chatId, Integer userId, User reqUser) throws UserException, ChatException {

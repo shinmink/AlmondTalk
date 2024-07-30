@@ -31,7 +31,7 @@ function HomePage() {
     const [messages, setMessages] = useState([]); // 메시지 상태
     const [lastMessages, setLastMessages] = useState({}); // 마지막 메시지 상태
     const [lastReadTimestamps, setLastReadTimestamps] = useState({}); // 마지막 읽은 메시지의 타임스탬프 상태
-
+    const [chatMenuAnchorEl, setChatMenuAnchorEl] = useState(null); // 채팅방 메뉴 앵커 상태
 
     const messagesEndRef = useRef(null); // 스크롤을 위한 useRef 추가
 
@@ -75,7 +75,7 @@ function HomePage() {
         setClient(stompClient);
     };
 
-    // 마지막 메시지 및 읽은 타임스탬프 업데이트 함수 - 수정된 부분
+    // 마지막 메시지 및 읽은 타임스탬프 업데이트 함수
     const updateLastMessages = (chatId, message) => {
         setLastMessages((prevLastMessages) => ({
             ...prevLastMessages,
@@ -88,7 +88,7 @@ function HomePage() {
         stompClient.subscribe(`/group/${chatId}`, (message) => {
             const receivedMessage = JSON.parse(message.body);
             setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-            updateLastMessages(chatId, receivedMessage); // 수정된 부분: 마지막 메시지 업데이트 함수 호출
+            updateLastMessages(chatId, receivedMessage); // 마지막 메시지 업데이트 함수 호출
         });
     };
 
@@ -130,7 +130,7 @@ function HomePage() {
             dispatch(getAllMessages({ chatId: currentChat.id, token }));
             setLastReadTimestamps((prevTimestamps) => ({
                 ...prevTimestamps,
-                [currentChat.id]: new Date().toISOString(), // 수정된 부분: 마지막 읽은 타임스탬프 업데이트
+                [currentChat.id]: new Date().toISOString(), // 마지막 읽은 타임스탬프 업데이트
             }));
         }
     }, [currentChat, message.newMessage]);
@@ -180,6 +180,16 @@ function HomePage() {
     // 메뉴 닫기 핸들러
     const handleClose = () => {
         setAnchorEl(null);
+    };
+
+    // 채팅방 메뉴 열기 핸들러
+    const handleChatMenuClick = (event) => {
+        setChatMenuAnchorEl(event.currentTarget);
+    };
+
+    // 채팅방 메뉴 닫기 핸들러
+    const handleChatMenuClose = () => {
+        setChatMenuAnchorEl(null);
     };
 
     // 채팅 카드 클릭 시 채팅 생성
@@ -249,8 +259,29 @@ function HomePage() {
         setCurrentChat(item);
         setLastReadTimestamps((prevTimestamps) => ({
             ...prevTimestamps,
-            [item.id]: new Date().toISOString(), // 수정된 부분: 채팅 클릭 시 마지막 읽은 타임스탬프 업데이트
+            [item.id]: new Date().toISOString(), // 채팅 클릭 시 마지막 읽은 타임스탬프 업데이트
         }));
+    };
+
+    // 채팅방 수정하기 버튼 클릭 시 동작
+    const handleEditChat = () => {
+        // TODO: 채팅방 수정 로직 구현
+        console.log("Edit Chat");
+        handleChatMenuClose();
+    };
+
+    // 채팅방 삭제하기 버튼 클릭 시 동작
+    const handleDeleteChat = () => {
+        // TODO: 채팅방 삭제 로직 구현
+        console.log("Delete Chat");
+        handleChatMenuClose();
+    };
+
+    // 채팅방 나가기 버튼 클릭 시 동작
+    const handleLeaveChat = () => {
+        // TODO: 채팅방 나가기 로직 구현
+        console.log("Leave Chat");
+        handleChatMenuClose();
     };
 
     return (
@@ -363,6 +394,24 @@ function HomePage() {
                                             </p>
                                         </div>
                                     </div>
+                                    {/* 멀티 버튼 대신 메뉴 추가된 부분 */}
+                                    <Button
+                                        aria-controls={chatMenuAnchorEl ? "chat-menu" : undefined}
+                                        aria-haspopup="true"
+                                        onClick={handleChatMenuClick}
+                                    >
+                                        <BsThreeDotsVertical/>
+                                    </Button>
+                                    <Menu
+                                        id="chat-menu"
+                                        anchorEl={chatMenuAnchorEl}
+                                        open={Boolean(chatMenuAnchorEl)}
+                                        onClose={handleChatMenuClose}
+                                    >
+                                        <MenuItem onClick={handleEditChat}>채팅방 수정하기</MenuItem>
+                                        <MenuItem onClick={handleDeleteChat}>채팅방 삭제하기</MenuItem>
+                                        <MenuItem onClick={handleLeaveChat}>채팅방 나가기</MenuItem>
+                                    </Menu>
                                 </div>
                                 <div className="flex flex-col flex-grow p-3 overflow-y-auto">
                                     {messages.map((msg, index) => (

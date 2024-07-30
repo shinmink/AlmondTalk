@@ -284,6 +284,13 @@ function HomePage() {
         handleChatMenuClose();
     };
 
+    // 친구 초대하기 버튼 클릭 시 동작
+    const handleInviteFriend = () => {
+        // TODO: 친구 초대 로직 구현
+        console.log("Invite Friend");
+        handleChatMenuClose();
+    };
+
     return (
         <div className="relative">
             <div className="w-[100vw] py-14 bg-[#00a884]">
@@ -411,6 +418,7 @@ function HomePage() {
                                         <MenuItem onClick={handleEditChat}>채팅방 수정하기</MenuItem>
                                         <MenuItem onClick={handleDeleteChat}>채팅방 삭제하기</MenuItem>
                                         <MenuItem onClick={handleLeaveChat}>채팅방 나가기</MenuItem>
+                                        <MenuItem onClick={handleInviteFriend}>친구 초대하기</MenuItem>
                                     </Menu>
                                 </div>
                                 <div className="flex flex-col flex-grow p-3 overflow-y-auto">

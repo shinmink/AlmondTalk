@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react"; // useRef 추가
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SockJS from "sockjs-client";
@@ -13,9 +13,9 @@ import ChatCard from "./ChatCard/ChatCard";
 import MessageCard from "./MessageCard/MessageCard";
 import Profile from "./Profile/Profile";
 import CreateGroup from "./Group/CreateGroup";
-import EditGroup from "./Group/EditGroup"; // EditGroup 컴포넌트 추가
+import EditGroup from "./Group/EditGroup";
 import { currentUser, logoutAction, searchUser } from "../Redux/Auth/Action";
-import { createChat, getUsersChat, updateChat, deleteChat } from "../Redux/Chat/Action"; // updateChat 액션 추가
+import { createChat, getUsersChat, updateChat, deleteChat } from "../Redux/Chat/Action";
 import { createMessage, getAllMessages } from "../Redux/Message/Action";
 import "./HomePage.css";
 
@@ -25,7 +25,7 @@ function HomePage() {
     const [content, setContent] = useState(""); // 메시지 내용 상태
     const [isProfile, setIsProfile] = useState(false); // 프로필 보기 상태
     const [isGroup, setIsGroup] = useState(false); // 그룹 생성 상태
-    const [isEditGroup, setIsEditGroup] = useState(false); // 그룹 수정 상태 추가
+    const [isEditGroup, setIsEditGroup] = useState(false); // 그룹 수정 상태
     const [anchorEl, setAnchorEl] = useState(null); // 메뉴 앵커 상태
     const isMenuOpen = Boolean(anchorEl); // 메뉴 열림 상태
     const [client, setClient] = useState(null); // STOMP 클라이언트 상태
@@ -34,8 +34,10 @@ function HomePage() {
     const [lastMessages, setLastMessages] = useState({}); // 마지막 메시지 상태
     const [lastReadTimestamps, setLastReadTimestamps] = useState({}); // 마지막 읽은 메시지의 타임스탬프 상태
     const [chatMenuAnchorEl, setChatMenuAnchorEl] = useState(null); // 채팅방 메뉴 앵커 상태
+    const [chats, setChats] = useState([]); // 채팅 목록 상태
+    const subscribedChatsRef = useRef(new Set()); // 구독된 채팅방 ID를 저장하는 Set
 
-    const messagesEndRef = useRef(null); // 스크롤을 위한 useRef 추가
+    const messagesEndRef = useRef(null); // 스크롤을 위한 useRef
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -60,9 +62,7 @@ function HomePage() {
             debug: (str) => console.log(str),
             onConnect: () => {
                 setIsConnected(true);
-                if (currentChat) {
-                    subscribeToChat(stompClient, currentChat.id); // 연결 시 현재 채팅 구독
-                }
+                subscribeToAllChats(stompClient); // 모든 채팅방 구독
             },
             onDisconnect: () => {
                 setIsConnected(false);
@@ -75,6 +75,16 @@ function HomePage() {
 
         stompClient.activate();
         setClient(stompClient);
+    };
+
+    // 모든 채팅방 구독 함수 선언 추가
+    const subscribeToAllChats = (stompClient) => {
+        chat.chats.forEach((chat) => {
+            if (!subscribedChatsRef.current.has(chat.id)) { // 중복 구독 방지
+                subscribeToChat(stompClient, chat.id);
+                subscribedChatsRef.current.add(chat.id); // 구독된 채팅방 ID 추가
+            }
+        });
     };
 
     // 마지막 메시지 및 읽은 타임스탬프 업데이트 함수
@@ -94,9 +104,10 @@ function HomePage() {
         });
 
         // 채팅방 수정 구독
-        stompClient.subscribe(`/topic/chat/${chatId}`, (message) => {
+        stompClient.subscribe(`/topic/chat/${chatId}/update`, (message) => {
             const updatedChat = JSON.parse(message.body);
-            if (updatedChat.id === currentChat.id) {
+            setChats((prevChats) => prevChats.map(chat => chat.id === updatedChat.id ? updatedChat : chat));
+            if (updatedChat.id === currentChat?.id) {
                 setCurrentChat((prevChat) => ({
                     ...prevChat,
                     chatName: updatedChat.chatName,
@@ -108,13 +119,14 @@ function HomePage() {
         // 채팅방 삭제 구독
         stompClient.subscribe(`/topic/chat/${chatId}/delete`, (message) => {
             const deletedChatId = JSON.parse(message.body);
-            if (deletedChatId === currentChat.id) {
+            if (deletedChatId === currentChat?.id) {
                 setCurrentChat(null); // 현재 채팅방이 삭제된 경우
                 alert("채팅방이 삭제되었습니다.");
             }
+            // 삭제된 채팅방에 대한 추가 처리
+            setChats((prevChats) => prevChats.filter(chat => chat.id !== deletedChatId));
         });
     };
-
 
     // 쿠키 가져오는 함수
     function getCookie(name) {
@@ -129,11 +141,17 @@ function HomePage() {
         connect();
     }, []);
 
+    // 채팅방 삭제 및 수정 이벤트 구독을 위해 useEffect
     useEffect(() => {
-        if (isConnected && client && auth.reqUser && currentChat) {
-            subscribeToChat(client, currentChat.id);
+        if (isConnected && client && auth.reqUser) {
+            subscribeToAllChats(client);
         }
-    }, [isConnected, client, auth.reqUser, currentChat]);
+    }, [isConnected, client, auth.reqUser, chat.chats]);
+
+    // 채팅 목록 상태 업데이트 (Redux 상태에서 가져오기)
+    useEffect(() => {
+        setChats(chat.chats);
+    }, [chat.chats]);
 
     // 메시지 상태가 변경될 때 메시지 설정 및 스크롤 이동
     useEffect(() => {
@@ -287,7 +305,6 @@ function HomePage() {
         }));
     };
 
-
     // 채팅방 수정하기 버튼 클릭 시 동작
     const handleEditChat = () => {
         setIsEditGroup(true); // 수정 모드로 전환
@@ -398,17 +415,16 @@ function HomePage() {
                                         />
                                     </div>
                                     <div className="py-3">
-                                        {chat.chats &&
-                                            chat.chats.map((item) => (
-                                                <ChatCard
-                                                    key={item.id}
-                                                    userImg={item.chatImage || "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="}
-                                                    name={item.chatName} // 채팅방 이름 전달
-                                                    lastMessage={lastMessages[item.id]} // 마지막 메시지 전달
-                                                    lastReadTimestamp={lastReadTimestamps[item.id]} // 마지막 읽은 타임스탬프 전달
-                                                    onClick={() => handleCurrentChat(item)}
-                                                />
-                                            ))}
+                                        {chats.length > 0 && chats.map((item) => (
+                                            <ChatCard
+                                                key={item.id}
+                                                userImg={item.chatImage || "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="}
+                                                name={item.chatName} // 채팅방 이름 전달
+                                                lastMessage={lastMessages[item.id]} // 마지막 메시지 전달
+                                                lastReadTimestamp={lastReadTimestamps[item.id]} // 마지막 읽은 타임스탬프 전달
+                                                onClick={() => handleCurrentChat(item)}
+                                            />
+                                        ))}
                                     </div>
                                 </div>
                             </div>

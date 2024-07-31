@@ -13,6 +13,7 @@ import com.sparta.almondtalk.global.exception.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,9 @@ public class ChatController {
 
     @Autowired
     private UserServiceImpl userService; // UserServiceImpl 빈을 주입받음
+
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;;
 
     // 단일 채팅을 생성하는 핸들러
     @PostMapping("/single")
@@ -98,6 +102,9 @@ public class ChatController {
 
         Chat chat = this.chatService.updateGroup(chatId, updateGroupRequest, reqUser); // 그룹 정보 업데이트
 
+        // 그룹 정보 수정 브로드캐스트 이벤트 추가
+        this.simpMessagingTemplate.convertAndSend("/topic/chat/" + chatId + "/update", chat);
+
         return new ResponseEntity<>(chat, HttpStatus.OK); // 업데이트된 그룹 정보와 함께 HTTP 상태 코드 200(OK)을 반환
     }
 
@@ -123,6 +130,9 @@ public class ChatController {
         User reqUser = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 
         this.chatService.deleteChat(chatId, reqUser.getId()); // 채팅 삭제
+
+        // 채팅방 삭제 브로드캐스트 이벤트 추가
+        this.simpMessagingTemplate.convertAndSend("/topic/chat/" + chatId + "/delete", chatId);
 
         ApiResponse res = new ApiResponse("Deleted Successfully...", false); // 삭제 성공 응답 생성
 

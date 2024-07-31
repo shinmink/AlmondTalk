@@ -105,9 +105,10 @@ public class ChatServiceImpl implements ChatService {
         // 사용자 ID로 사용자 찾기
         User user = this.userService.findUserById(userId);
 
-        // 요청한 사용자가 관리자면 사용자 추가
-        if (chat.getAdmins().contains(reqUser)) {
+        // 요청한 사용자가 채팅의 참가자인지 확인
+        if (chat.getUsers().contains(reqUser)) {
             chat.getUsers().add(user);
+            chatRepository.save(chat); // 변경사항 저장
             return chat;
         } else {
             throw new UserException("You have not access to add user");

@@ -14,8 +14,9 @@ import MessageCard from "./MessageCard/MessageCard";
 import Profile from "./Profile/Profile";
 import CreateGroup from "./Group/CreateGroup";
 import EditGroup from "./Group/EditGroup";
+import InviteFriends from "./Group/InviteFriends"; // InviteFriends 컴포넌트 추가
 import { currentUser, logoutAction, searchUser } from "../Redux/Auth/Action";
-import { createChat, getUsersChat, updateChat, deleteChat } from "../Redux/Chat/Action";
+import { createChat, getUsersChat, updateChat, deleteChat, inviteUserToGroup } from "../Redux/Chat/Action"; // inviteUserToGroup 액션 추가
 import { createMessage, getAllMessages } from "../Redux/Message/Action";
 import "./HomePage.css";
 
@@ -26,6 +27,7 @@ function HomePage() {
     const [isProfile, setIsProfile] = useState(false); // 프로필 보기 상태
     const [isGroup, setIsGroup] = useState(false); // 그룹 생성 상태
     const [isEditGroup, setIsEditGroup] = useState(false); // 그룹 수정 상태
+    const [isInviteMode, setInviteMode] = useState(false); // 초대 모드 상태 추가
     const [anchorEl, setAnchorEl] = useState(null); // 메뉴 앵커 상태
     const isMenuOpen = Boolean(anchorEl); // 메뉴 열림 상태
     const [client, setClient] = useState(null); // STOMP 클라이언트 상태
@@ -112,6 +114,7 @@ function HomePage() {
                     ...prevChat,
                     chatName: updatedChat.chatName,
                     chatImage: updatedChat.chatImage,
+                    users: updatedChat.users // 유저 리스트 업데이트
                 }));
             }
         });
@@ -329,8 +332,7 @@ function HomePage() {
 
     // 친구 초대하기 버튼 클릭 시 동작
     const handleInviteFriend = () => {
-        // TODO: 친구 초대 로직 구현
-        console.log("Invite Friend");
+        setInviteMode(true); // 초대 모드로 전환
         handleChatMenuClose();
     };
 
@@ -358,9 +360,15 @@ function HomePage() {
                                     })); // currentChat 상태 업데이트
                                 }}
                             />
-                        )} {/* EditGroup 컴포넌트 추가 */}
+                        )}
+                        {isInviteMode && (
+                            <InviteFriends
+                                currentChat={currentChat}
+                                setInviteMode={setInviteMode}
+                            />
+                        )}
 
-                        {!isProfile && !isGroup && !isEditGroup && (
+                        {!isProfile && !isGroup && !isEditGroup && !isInviteMode && (
                             <div className="w-full">
                                 <div className="flex justify-between items-center p-3">
                                     <div
@@ -431,7 +439,6 @@ function HomePage() {
                         )}
                     </div>
 
-                    {/* 채팅 및 메시지 섹션 */}
                     <div className="middle w-[40%] bg-[#ffffff]">
                         {currentChat ? (
                             <div className="flex flex-col h-full">
@@ -440,7 +447,7 @@ function HomePage() {
                                         <img
                                             className="rounded-full w-10 h-10"
                                             src={
-                                                currentChat.chatImage || // chatImage로 수정
+                                                currentChat.chatImage ||
                                                 "https://media.istockphoto.com/id/521977679/photo/silhouette-of-adult-woman.webp?b=1&s=170667a&w=0&k=20&c=wpJ0QJYXdbLx24H5LK08xSgiQ3zNkCAD2W3F74qlUL0="
                                             }
                                             alt="profile"
@@ -457,7 +464,6 @@ function HomePage() {
                                             </p>
                                         </div>
                                     </div>
-                                    {/* 멀티 버튼 대신 메뉴 추가된 부분 */}
                                     <Button
                                         aria-controls={chatMenuAnchorEl ? "chat-menu" : undefined}
                                         aria-haspopup="true"
@@ -481,11 +487,11 @@ function HomePage() {
                                     {messages.map((msg, index) => (
                                         <MessageCard
                                             key={index}
-                                            isReqUserMessage={msg.user.id === auth.reqUser.id} // 보낸 이가 현재 로그인된 유저인지 확인
-                                            message={msg} // 메시지 객체 전달
+                                            isReqUserMessage={msg.user.id === auth.reqUser.id}
+                                            message={msg}
                                         />
                                     ))}
-                                    <div ref={messagesEndRef} /> {/* 스크롤을 위한 div 추가 */}
+                                    <div ref={messagesEndRef} />
                                 </div>
                                 <div className="p-3 border-t border-[#ced4da]">
                                     <div className="flex items-center space-x-2">
@@ -515,7 +521,6 @@ function HomePage() {
                         )}
                     </div>
 
-                    {/* 사용자 검색 및 프로필 섹션 */}
                     <div className="right w-[30%] bg-[#ffffff]">
                         <div className="p-3">
                             <div className="flex items-center border border-[#ced4da] rounded-lg">

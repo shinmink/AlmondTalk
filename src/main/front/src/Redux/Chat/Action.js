@@ -1,6 +1,6 @@
 // 필요한 라이브러리 및 상수 가져오기
 import { BASE_API_URL } from "../../config/api";
-import { CREATE_CHAT, CREATE_GROUP, GET_USERS_CHAT, DELETE_CHAT, LEAVE_CHAT, UPDATE_CHAT } from "./ActionType";
+import { CREATE_CHAT, CREATE_GROUP, GET_USERS_CHAT, DELETE_CHAT, LEAVE_CHAT, UPDATE_CHAT, INVITE_USER_TO_GROUP } from "./ActionType";
 
 // 단일 채팅을 생성하기 위한 액션 생성자
 export const createChat = (chatData) => async (dispatch) => {
@@ -129,6 +129,26 @@ export const updateChat = (chatData, token) => async (dispatch) => {
 
         // 수정된 채팅 데이터를 포함하는 액션 디스패치
         dispatch({ type: UPDATE_CHAT, payload: data });
+    } catch (error) {
+        console.log("catch error ", error);
+    }
+};
+
+// 사용자 초대하기 위한 액션 생성자 추가
+export const inviteUserToGroup = (chatId, userId, token) => async (dispatch) => {
+    try {
+        const res = await fetch(`${BASE_API_URL}/api/chats/${chatId}/add/${userId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const data = await res.json();
+        console.log("User invited to group:", data);
+
+        dispatch({ type: INVITE_USER_TO_GROUP, payload: data });
     } catch (error) {
         console.log("catch error ", error);
     }

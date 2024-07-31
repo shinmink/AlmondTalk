@@ -6,6 +6,7 @@ import com.sparta.almondtalk.domain.chat.request.SingleChatRequest;
 import com.sparta.almondtalk.domain.chat.request.UpdateGroupRequest;
 import com.sparta.almondtalk.domain.chat.service.ChatServiceImpl;
 import com.sparta.almondtalk.domain.home.response.ApiResponse;
+import com.sparta.almondtalk.domain.message.model.Message;
 import com.sparta.almondtalk.domain.user.model.User;
 import com.sparta.almondtalk.domain.user.service.UserServiceImpl;
 import com.sparta.almondtalk.global.exception.ChatException;
@@ -87,6 +88,19 @@ public class ChatController {
         User reqUser = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 
         Chat chat = this.chatService.addUserToGroup(userId, chatId, reqUser); // 그룹에 사용자 추가
+
+        // 사용자 추가 브로드캐스트 이벤트 추가
+        this.simpMessagingTemplate.convertAndSend("/topic/chat/" + chatId + "/update", chat);
+
+        // 사용자 입장 메시지 생성
+        String enterMessage = userService.findUserById(userId).getName() + "님이 입장하셨습니다.";
+        Message message = new Message();
+        message.setContent(enterMessage);
+        message.setChat(chat);
+        message.setUser(reqUser); // 시스템 메시지로 설정할 수도 있습니다.
+
+        // 메시지를 브로드캐스트
+        this.simpMessagingTemplate.convertAndSend("/group/" + chatId, message);
 
         return new ResponseEntity<>(chat, HttpStatus.OK); // 업데이트된 채팅과 함께 HTTP 상태 코드 200(OK)을 반환
     }

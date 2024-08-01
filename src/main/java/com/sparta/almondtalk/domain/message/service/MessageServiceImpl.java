@@ -41,11 +41,34 @@ public class MessageServiceImpl implements MessageService {
         message.setUser(user);
         message.setContent(req.getContent());
         message.setTimestamp(LocalDateTime.now());
+        message.setType(Message.MessageType.USER);
 
         // 메시지 저장 및 반환
         message = this.messageRepository.save(message);
         return message;
     }
+
+    // 시스템 메시지를 보내는 메서드
+    @Override
+    public Message sendSystemMessage(SendMessageRequest req) throws UserException, ChatException {
+        // 요청된 사용자 ID로 사용자 찾기
+        User user = this.userService.findUserById(req.getUserId());
+        // 요청된 채팅 ID로 채팅 찾기
+        Chat chat = this.chatService.findChatById(req.getChatId());
+
+        // 시스템 메시지 생성 및 설정
+        Message message = new Message();
+        message.setChat(chat);
+        message.setUser(user);
+        message.setContent(req.getContent());
+        message.setTimestamp(LocalDateTime.now());
+        message.setType(Message.MessageType.SYSTEM); // 시스템 메시지로 설정
+
+        // 메시지 저장 및 반환
+        message = this.messageRepository.save(message);
+        return message;
+    }
+
 
     @Override
     public List<Message> getChatsMessages(Integer chatId, User reqUser) throws ChatException, UserException {

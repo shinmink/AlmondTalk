@@ -6,14 +6,6 @@ public class SendMessageRequest {
     private Integer chatId;
     private String content;
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
     public Integer getChatId() {
         return chatId;
     }
@@ -28,6 +20,14 @@ public class SendMessageRequest {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public SendMessageRequest() {

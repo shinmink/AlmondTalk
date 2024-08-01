@@ -8,9 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Setter
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 public class User {
 
@@ -21,26 +21,6 @@ public class User {
     private String email;
     private String profile;
     private String password;
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setProfile(String profile) {
-        this.profile = profile;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     public User(int id, String name, String email, String profile, String password) {
         this.id = id;

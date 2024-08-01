@@ -7,6 +7,8 @@ import com.sparta.almondtalk.domain.chat.request.UpdateGroupRequest;
 import com.sparta.almondtalk.domain.chat.service.ChatServiceImpl;
 import com.sparta.almondtalk.domain.home.response.ApiResponse;
 import com.sparta.almondtalk.domain.message.model.Message;
+import com.sparta.almondtalk.domain.message.request.SendMessageRequest;
+import com.sparta.almondtalk.domain.message.service.MessageServiceImpl;
 import com.sparta.almondtalk.domain.user.model.User;
 import com.sparta.almondtalk.domain.user.service.UserServiceImpl;
 import com.sparta.almondtalk.global.exception.ChatException;
@@ -31,6 +33,9 @@ public class ChatController {
     private UserServiceImpl userService; // UserServiceImpl 빈을 주입받음
 
     @Autowired
+    private MessageServiceImpl messageService;
+
+    @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;;
 
     // 단일 채팅을 생성하는 핸들러
@@ -41,6 +46,9 @@ public class ChatController {
         User reqUser = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 
         Chat chat = this.chatService.createChat(reqUser, singleChatRequest.getUserId()); // 단일 채팅 생성
+
+        // 새로운 채팅방 생성 브로드캐스트
+        this.simpMessagingTemplate.convertAndSend("/topic/chats/new", chat);
 
         return new ResponseEntity<>(chat, HttpStatus.CREATED); // 생성된 채팅과 함께 HTTP 상태 코드 201(CREATED)을 반환
     }
@@ -54,6 +62,9 @@ public class ChatController {
         User reqUser = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 
         Chat chat = this.chatService.createGroup(groupChatRequest, reqUser); // 그룹 채팅 생성
+
+        // 새로운 그룹 채팅방 생성 브로드캐스트
+        this.simpMessagingTemplate.convertAndSend("/topic/chats/new", chat);
 
         return new ResponseEntity<>(chat, HttpStatus.CREATED); // 생성된 그룹 채팅과 함께 HTTP 상태 코드 201(CREATED)을 반환
     }
@@ -94,13 +105,13 @@ public class ChatController {
 
         // 사용자 입장 메시지 생성
         String enterMessage = userService.findUserById(userId).getName() + "님이 입장하셨습니다.";
-        Message message = new Message();
-        message.setContent(enterMessage);
-        message.setChat(chat);
-        message.setUser(reqUser); // 시스템 메시지로 설정할 수도 있습니다.
 
-        // 메시지를 브로드캐스트
-        this.simpMessagingTemplate.convertAndSend("/group/" + chatId, message);
+        SendMessageRequest sendMessageRequest = new SendMessageRequest(userId, chatId, enterMessage);;
+
+
+
+        messageService.sendSystemMessage(sendMessageRequest); // 시스템 메시지 전송
+
 
         return new ResponseEntity<>(chat, HttpStatus.OK); // 업데이트된 채팅과 함께 HTTP 상태 코드 200(OK)을 반환
     }
@@ -131,6 +142,16 @@ public class ChatController {
         User reqUser = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
 
         Chat chat = this.chatService.removeFromGroup(userId, chatId, reqUser); // 그룹에서 사용자 제거
+
+        // 사용자 제거 브로드캐스트 이벤트 추가
+        this.simpMessagingTemplate.convertAndSend("/topic/chat/" + chatId + "/update", chat);
+
+        // 사용자 퇴장 메시지 생성
+        String leaveMessage = userService.findUserById(userId).getName() + "님이 퇴장하셨습니다.";
+
+        SendMessageRequest sendMessageRequest = new SendMessageRequest(userId, chatId, leaveMessage);;
+
+        Message message = messageService.sendSystemMessage(sendMessageRequest);
 
         return new ResponseEntity<>(chat, HttpStatus.OK); // 업데이트된 채팅과 함께 HTTP 상태 코드 200(OK)을 반환
     }

@@ -31,18 +31,27 @@ public class Message {
     @ManyToOne
     private User user;
 
-    public Message(Integer id, String content, LocalDateTime timestamp, Chat chat, User user) {
+
+    @Enumerated(EnumType.STRING)
+    private MessageType type;
+
+    public Message(Integer id, String content, LocalDateTime timestamp, Chat chat, User user, MessageType type) {
         this.id = id;
         this.content = content;
         this.timestamp = timestamp;
         this.chat = chat;
         this.user = user;
+        this.type = type;
     }
 
     @Override
     public String toString() {
         return "Message [id=" + id + ", content=" + content + ", timestamp=" + timestamp + ", chat=" + chat + ", user="
-                + user + "]";
+                + user + ", type=" + type + "]";
+    }
+
+    public enum MessageType {
+        USER, SYSTEM
     }
 
 }

@@ -27,7 +27,7 @@ function HomePage() {
     const [isProfile, setIsProfile] = useState(false); // 프로필 보기 상태
     const [isGroup, setIsGroup] = useState(false); // 그룹 생성 상태
     const [isEditGroup, setIsEditGroup] = useState(false); // 그룹 수정 상태
-    const [isInviteMode, setInviteMode] = useState(false); // 초대 모드 상태 추가
+    const [isInviteMode, setInviteMode] = useState(false); // 초대 모드 상태
     const [anchorEl, setAnchorEl] = useState(null); // 메뉴 앵커 상태
     const isMenuOpen = Boolean(anchorEl); // 메뉴 열림 상태
     const [client, setClient] = useState(null); // STOMP 클라이언트 상태
@@ -65,6 +65,11 @@ function HomePage() {
             onConnect: () => {
                 setIsConnected(true);
                 subscribeToAllChats(stompClient); // 모든 채팅방 구독
+                // 새로운 채팅방 생성 구독
+                stompClient.subscribe("/topic/chats/new", (message) => {
+                    const newChat = JSON.parse(message.body);
+                    setChats((prevChats) => [...prevChats, newChat]);
+                });
             },
             onDisconnect: () => {
                 setIsConnected(false);
@@ -81,7 +86,8 @@ function HomePage() {
 
     // 모든 채팅방 구독 함수 선언 추가
     const subscribeToAllChats = (stompClient) => {
-        chat.chats.forEach((chat) => {
+        const chatList = Array.isArray(chat.chats) ? chat.chats : []; //
+        chatList.forEach((chat) => { //
             if (!subscribedChatsRef.current.has(chat.id)) { // 중복 구독 방지
                 subscribeToChat(stompClient, chat.id);
                 subscribedChatsRef.current.add(chat.id); // 구독된 채팅방 ID 추가
@@ -153,7 +159,7 @@ function HomePage() {
 
     // 채팅 목록 상태 업데이트 (Redux 상태에서 가져오기)
     useEffect(() => {
-        setChats(chat.chats);
+        setChats(Array.isArray(chat.chats) ? chat.chats : []); //
     }, [chat.chats]);
 
     // 메시지 상태가 변경될 때 메시지 설정 및 스크롤 이동
@@ -199,8 +205,8 @@ function HomePage() {
 
     // 모든 채팅에 대한 모든 메시지 가져오기
     useEffect(() => {
-        chat.chats &&
-        chat.chats.forEach((item) => {
+        const chatList = Array.isArray(chat.chats) ? chat.chats : []; //
+        chatList.forEach((item) => { //
             dispatch(getAllMessages({ chatId: item.id, token }));
         });
     }, [chat.chats, token, dispatch]);
@@ -258,13 +264,15 @@ function HomePage() {
             const newMessage = {
                 chatId: currentChat.id,
                 content: content,
-                user: auth.reqUser, // 메시지를 보낸 사용자 정보를 포함하도록 수정된 부분
+                user: auth.reqUser, // 메시지를 보낸 사용자 정보를 포함
                 timestamp: new Date().toISOString(),
+                type: "USER", // 메시지 타입 설정 USER
             };
 
             dispatch(createMessage({
                 token,
                 data: newMessage,
+                type: "USER", // 메시지 타입 설정
             }));
 
             client.publish({
@@ -484,14 +492,14 @@ function HomePage() {
                                     </Menu>
                                 </div>
                                 <div className="flex flex-col flex-grow p-3 overflow-y-auto">
-                                    {messages.map((msg, index) => (
+                                    {messages.map((msg, index) => ( // 메시지 타입에 따른 분기 $$$$$$$$$
                                         <MessageCard
                                             key={index}
                                             isReqUserMessage={msg.user.id === auth.reqUser.id}
                                             message={msg}
                                         />
                                     ))}
-                                    <div ref={messagesEndRef} />
+                                    <div ref={messagesEndRef}/>
                                 </div>
                                 <div className="p-3 border-t border-[#ced4da]">
                                     <div className="flex items-center space-x-2">
@@ -524,7 +532,7 @@ function HomePage() {
                     <div className="right w-[30%] bg-[#ffffff]">
                         <div className="p-3">
                             <div className="flex items-center border border-[#ced4da] rounded-lg">
-                                <AiOutlineSearch />
+                                <AiOutlineSearch/>
                                 <input
                                     type="text"
                                     className="w-full p-2"
@@ -545,7 +553,7 @@ function HomePage() {
                                         className="flex items-center space-x-3 p-2 border-b border-[#ced4da]"
                                         onClick={() => handleClickOnChatCard(user.id)}
                                     >
-                                        <img
+                                    <img
                                             className="rounded-full w-10 h-10"
                                             src={
                                                 user.profile ||

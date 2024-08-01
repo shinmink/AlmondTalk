@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setApplicationDestinationPrefixes("/app");
 
         // 간단한 브로커를 설정하여 지정된 엔드포인트에 메시지를 전달
-        registry.enableSimpleBroker("/group", "/user", "/topic/chat"); // /topic 추가
+        registry.enableSimpleBroker("/group", "/user", "/topic/chat", "/topic/chats/new"); // /topic 추가
 
         // 유저별 메시지 전달을 위한 프리픽스 설정
         registry.setUserDestinationPrefix("/user");

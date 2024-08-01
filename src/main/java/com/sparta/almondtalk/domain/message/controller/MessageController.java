@@ -43,7 +43,26 @@ public class MessageController {
 
         Message message = this.messageService.sendMessage(sendMessageRequest); // 메시지 전송
 
-        // 메시지를 WebSocket을 통해 클라이언트에 전송 - 추가된 부분
+        // 메시지를 WebSocket을 통해 클라이언트에 전송
+        messagingTemplate.convertAndSend("/group/" + message.getChat().getId(), message);
+
+        return new ResponseEntity<Message>(message, HttpStatus.OK); // 전송된 메시지와 함께 OK 상태 반환
+    }
+
+    // 시스템 메시지 전송 핸들러
+    @PostMapping("/system")
+    public ResponseEntity<Message> sendSystemMessageHandler(
+            @RequestBody SendMessageRequest sendMessageRequest,
+            @RequestHeader("Authorization") String jwt
+    ) throws UserException, ChatException {
+
+        User user = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
+
+        sendMessageRequest.setUserId(user.getId()); // 요청에 사용자 ID 설정
+
+        Message message = this.messageService.sendSystemMessage(sendMessageRequest); // 시스템 메시지 전송
+
+        // 시스템 메시지를 WebSocket을 통해 클라이언트에 전송
         messagingTemplate.convertAndSend("/group/" + message.getChat().getId(), message);
 
         return new ResponseEntity<Message>(message, HttpStatus.OK); // 전송된 메시지와 함께 OK 상태 반환

@@ -13,6 +13,8 @@ public interface MessageService {
 
     public Message sendMessage(SendMessageRequest req) throws UserException, ChatException;
 
+    public Message sendSystemMessage(SendMessageRequest req) throws UserException, ChatException;
+
     public List<Message> getChatsMessages(Integer chatId, User reqUser) throws ChatException, UserException;
 
     public Message findMessageById(Integer messaageId) throws MessageException;

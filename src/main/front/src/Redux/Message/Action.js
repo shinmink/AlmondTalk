@@ -5,8 +5,10 @@ import { CREATE_NEW_MESSAGE, GET_ALL_MESSAGE, DELETE_MESSAGE } from "./ActionTyp
 // 새로운 메시지를 생성하기 위한 액션 생성자
 export const createMessage = (messageData) => async (dispatch) => {
     try {
-        // POST 요청을 통해 새로운 메시지 생성
-        const res = await fetch(`${BASE_API_URL}/api/messages/create`, {
+        // 시스템 메시지와 사용자 메시지의 엔드포인트 구분
+        const endpoint = messageData.type === "SYSTEM" ? "system" : "create";
+
+        const res = await fetch(`${BASE_API_URL}/api/messages/${endpoint}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -50,7 +52,7 @@ export const getAllMessages = (reqData) => async (dispatch) => {
     }
 };
 
-// 메시지를 삭제하기 위한 액션 생성자 - 수정된 부분
+// 메시지를 삭제하기 위한 액션 생성자
 export const deleteMessage = (messageId, token) => async (dispatch) => {
     try {
         // DELETE 요청을 통해 메시지 삭제

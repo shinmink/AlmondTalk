@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@Transactional
 public class ChatServiceImpl implements ChatService {
 
     @Autowired
@@ -146,18 +147,18 @@ public class ChatServiceImpl implements ChatService {
         // 사용자 ID로 사용자 찾기
         User user = this.userService.findUserById(userId);
 
-        // 요청한 사용자가 관리자면 사용자 제거
-        if (chat.getAdmins().contains(reqUser)) {
-            chat.getUsers().remove(user);
-            return chat;
-        } else if (chat.getUsers().contains(reqUser)) {
-            // 요청한 사용자가 일반 사용자이면 자신만 제거 가능
+        // 요청한 사용자가 채팅의 참가자인지 확인
+        if (chat.getUsers().contains(reqUser)) {
+            // 요청한 사용자가 본인인 경우
             if (user.getId() == reqUser.getId()) {
                 chat.getUsers().remove(user);
                 return this.chatRepository.save(chat);
+            } else {
+                throw new UserException("You can only remove yourself from the chat");
             }
+        } else {
+            throw new UserException("You are not part of this chat");
         }
-        throw new UserException("You have not access to remove user");
     }
 
     @Override

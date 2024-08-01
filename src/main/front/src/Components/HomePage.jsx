@@ -16,7 +16,7 @@ import CreateGroup from "./Group/CreateGroup";
 import EditGroup from "./Group/EditGroup";
 import InviteFriends from "./Group/InviteFriends"; // InviteFriends 컴포넌트 추가
 import { currentUser, logoutAction, searchUser } from "../Redux/Auth/Action";
-import { createChat, getUsersChat, updateChat, deleteChat, inviteUserToGroup } from "../Redux/Chat/Action"; // inviteUserToGroup 액션 추가
+import { createChat, getUsersChat, updateChat, deleteChat, leaveChat, inviteUserToGroup } from "../Redux/Chat/Action"; // inviteUserToGroup 액션 추가
 import { createMessage, getAllMessages } from "../Redux/Message/Action";
 import "./HomePage.css";
 
@@ -331,8 +331,10 @@ function HomePage() {
 
     // 채팅방 나가기 버튼 클릭 시 동작
     const handleLeaveChat = () => {
-        // TODO: 채팅방 나가기 로직 구현
-        console.log("Leave Chat");
+        if (currentChat) {
+            dispatch(leaveChat(currentChat.id, token)); // leaveChat 액션 호출
+            setCurrentChat(null); // 현재 채팅 초기화
+        }
         handleChatMenuClose();
     };
 

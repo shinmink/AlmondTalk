@@ -86,8 +86,7 @@ function HomePage() {
 
     // 모든 채팅방 구독 함수 선언 추가
     const subscribeToAllChats = (stompClient) => {
-        const chatList = Array.isArray(chat.chats) ? chat.chats : []; //
-        chatList.forEach((chat) => { //
+        chat.chats.forEach((chat) => {
             if (!subscribedChatsRef.current.has(chat.id)) { // 중복 구독 방지
                 subscribeToChat(stompClient, chat.id);
                 subscribedChatsRef.current.add(chat.id); // 구독된 채팅방 ID 추가
@@ -159,7 +158,7 @@ function HomePage() {
 
     // 채팅 목록 상태 업데이트 (Redux 상태에서 가져오기)
     useEffect(() => {
-        setChats(Array.isArray(chat.chats) ? chat.chats : []); //
+        setChats(chat.chats);
     }, [chat.chats]);
 
     // 메시지 상태가 변경될 때 메시지 설정 및 스크롤 이동
@@ -205,8 +204,8 @@ function HomePage() {
 
     // 모든 채팅에 대한 모든 메시지 가져오기
     useEffect(() => {
-        const chatList = Array.isArray(chat.chats) ? chat.chats : []; //
-        chatList.forEach((item) => { //
+        chat.chats &&
+        chat.chats.forEach((item) => {
             dispatch(getAllMessages({ chatId: item.id, token }));
         });
     }, [chat.chats, token, dispatch]);
@@ -266,13 +265,12 @@ function HomePage() {
                 content: content,
                 user: auth.reqUser, // 메시지를 보낸 사용자 정보를 포함
                 timestamp: new Date().toISOString(),
-                type: "USER", // 메시지 타입 설정 USER
+                type: "USER", // 메시지 타입 설정 USER_MASSAGE
             };
 
             dispatch(createMessage({
                 token,
                 data: newMessage,
-                type: "USER", // 메시지 타입 설정
             }));
 
             client.publish({
@@ -492,14 +490,14 @@ function HomePage() {
                                     </Menu>
                                 </div>
                                 <div className="flex flex-col flex-grow p-3 overflow-y-auto">
-                                    {messages.map((msg, index) => ( // 메시지 타입에 따른 분기 $$$$$$$$$
+                                    {messages.map((msg, index) => ( // 메시지 타입에 따른 분기
                                         <MessageCard
                                             key={index}
                                             isReqUserMessage={msg.user.id === auth.reqUser.id}
                                             message={msg}
                                         />
                                     ))}
-                                    <div ref={messagesEndRef}/>
+                                    <div ref={messagesEndRef} />
                                 </div>
                                 <div className="p-3 border-t border-[#ced4da]">
                                     <div className="flex items-center space-x-2">

@@ -15,6 +15,26 @@ const MessageCard = ({ isReqUserMessage, message }) => {
         );
     }
 
+    // 파일 메시지인 경우 파일 다운로드 링크를 렌더링
+    if (message.type === "FILE") {
+        console.log("message check => ", message)
+
+        return (
+            <div className={`flex ${isReqUserMessage ? "justify-end" : "justify-start"} my-2`}>
+                <div
+                    className={`py-2 px-4 rounded-md max-w-[70%] ${
+                        isReqUserMessage ? "bg-[#d9fdd3] text-black" : "bg-[#f0f0f0] text-black"
+                    }`}
+                >
+                    <p className="text-xs text-gray-500 mb-1">{message.user.name}</p>
+                    <a href={message.content} download className="text-blue-500 hover:underline" target="_blank">
+                        {message.content.split("/").pop()}
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
     // 사용자 메시지 렌더링
     return (
         <div className={`flex ${isReqUserMessage ? "justify-end" : "justify-start"} my-2`}>

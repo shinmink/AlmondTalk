@@ -532,7 +532,10 @@ function HomePage() {
                                 </div>
                                 <div className="p-3 border-t border-[#ced4da]">
                                     <div className="flex items-center space-x-2">
-                                        <BsEmojiSmile onClick={() => setShowEmojiPicker(!showEmojiPicker)} /> {/* 이모티콘 패널 토글  */}
+                                        <BsEmojiSmile
+                                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                        />{" "}
+                                        {/* 이모티콘 패널 토글 */}
                                         <input
                                             type="text"
                                             className="w-full p-2 border border-[#ced4da] rounded-lg"
@@ -540,9 +543,11 @@ function HomePage() {
                                             value={content}
                                             onChange={(e) => setContent(e.target.value)}
                                         />
-                                        <ImAttachment {...getRootProps()} /> {/* 파일 드롭존 설정  */}
-                                        <input {...getInputProps()} /> {/* 파일 인풋 설정  */}
-                                        <BsMicFill/>
+                                        <div {...getRootProps()}>
+                                            <ImAttachment /> {/* 파일 드롭존 설정 */}
+                                            <input {...getInputProps()} /> {/* 파일 인풋 설정 */}
+                                        </div>
+                                        <BsMicFill />
                                         <button
                                             className="bg-[#00a884] text-white p-2 rounded-lg"
                                             onClick={handleCreateNewMessage}
@@ -554,7 +559,7 @@ function HomePage() {
                             </div>
                         ) : (
                             <div className="flex items-center justify-center h-full">
-                                <p>Select a chat to start messaging</p>
+                                <p>채팅방을 선택해서 메세징을 시작하십시오.</p>
                             </div>
                         )}
                     </div>

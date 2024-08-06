@@ -6,6 +6,7 @@ import com.sparta.almondtalk.domain.user.model.User;
 import com.sparta.almondtalk.global.exception.ChatException;
 import com.sparta.almondtalk.global.exception.MessageException;
 import com.sparta.almondtalk.global.exception.UserException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,6 +15,8 @@ public interface MessageService {
     public Message sendMessage(SendMessageRequest req) throws UserException, ChatException;
 
     public Message sendSystemMessage(SendMessageRequest req) throws UserException, ChatException;
+
+    public Message uploadFileMessage(Integer chatId, Integer userId, MultipartFile file) throws UserException, ChatException, MessageException;
 
     public List<Message> getChatsMessages(Integer chatId, User reqUser) throws ChatException, UserException;
 

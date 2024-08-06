@@ -12,12 +12,20 @@ import com.sparta.almondtalk.global.exception.MessageException;
 import com.sparta.almondtalk.global.exception.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class MessageServiceImpl implements MessageService {
+
+    //private static final String UPLOAD_DIR = "uploads/"; // 파일 저장 디렉토리
 
     @Autowired
     private MessageRepository messageRepository; // 메시지 저장소 의존성 주입
@@ -68,6 +76,63 @@ public class MessageServiceImpl implements MessageService {
         message = this.messageRepository.save(message);
         return message;
     }
+
+    @Override
+    public Message uploadFileMessage(Integer chatId, Integer userId, MultipartFile file) throws UserException, ChatException, MessageException {
+        // 요청된 사용자 ID로 사용자 찾기
+        User user = this.userService.findUserById(userId);
+        // 요청된 채팅 ID로 채팅 찾기
+        Chat chat = this.chatService.findChatById(chatId);
+
+        if (file.isEmpty()) {
+            throw new MessageException("File is empty");
+        }
+
+        // 파일 저장 로직 (예: 파일 시스템, 클라우드 스토리지 등)
+        String fileUrl = saveFile(file);
+
+        // 메시지 생성 및 설정
+        Message message = new Message();
+        message.setChat(chat);
+        message.setUser(user);
+        message.setContent(fileUrl);
+        message.setTimestamp(LocalDateTime.now());
+        message.setType(Message.MessageType.FILE); // 파일 메시지 타입 설정
+
+        // 메시지 저장 및 반환
+        message = this.messageRepository.save(message);
+        return message;
+    }
+
+    private String saveFile(MultipartFile file) {
+        // 파일 저장 로직 구현
+        // 예: 파일 시스템에 저장하고 URL 반환
+        // 이 예제에서는 단순히 파일 이름을 반환합니다.
+        return file.getOriginalFilename();
+    }
+
+//    // 파일을 서버의 로컬 파일 시스템에 저장하는 메소드 $$$$$$$$$$
+//    private String saveFile(MultipartFile file) throws MessageException {
+//        try {
+//            // 파일 저장 디렉토리가 없으면 생성
+//            Path uploadPath = Paths.get(UPLOAD_DIR);
+//            if (!Files.exists(uploadPath)) {
+//                Files.createDirectories(uploadPath);
+//            }
+//
+//            // 원본 파일 이름을 사용하여 저장 경로 설정
+//            String fileName = file.getOriginalFilename();
+//            Path filePath = uploadPath.resolve(fileName);
+//
+//            // 파일을 지정된 경로에 저장
+//            Files.copy(file.getInputStream(), filePath);
+//
+//            // 저장된 파일의 URL 반환 (여기서는 파일 시스템 경로를 반환)
+//            return filePath.toString();
+//        } catch (IOException e) {
+//            throw new MessageException("Failed to save file", e);
+//        }
+//    }
 
 
     @Override

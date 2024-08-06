@@ -51,7 +51,7 @@ public class Message {
     }
 
     public enum MessageType {
-        USER, SYSTEM
+        USER, SYSTEM, FILE
     }
 
 }

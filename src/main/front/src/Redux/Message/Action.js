@@ -1,6 +1,6 @@
 // 필요한 라이브러리 및 상수 가져오기
 import { BASE_API_URL } from "../../config/api";
-import { CREATE_NEW_MESSAGE, GET_ALL_MESSAGE, DELETE_MESSAGE } from "./ActionType.js";
+import { CREATE_NEW_MESSAGE, GET_ALL_MESSAGE, DELETE_MESSAGE, UPLOAD_FILE_MESSAGE } from "./ActionType.js";
 
 // 새로운 메시지를 생성하기 위한 액션 생성자
 export const createMessage = (messageData) => async (dispatch) => {
@@ -22,6 +22,27 @@ export const createMessage = (messageData) => async (dispatch) => {
 
         // 생성된 메시지 데이터를 포함하는 액션 디스패치
         dispatch({ type: CREATE_NEW_MESSAGE, payload: data });
+    } catch (error) {
+        console.log("catch error ", error);
+    }
+};
+
+// 파일 메시지를 업로드하기 위한 액션 생성자
+export const uploadFileMessage = (uploadData) => async (dispatch) => {
+    try {
+        const res = await fetch(`${BASE_API_URL}/api/messages/upload`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${uploadData.token}`, // 인증 헤더 추가
+            },
+            body: uploadData.formData, // FormData 객체 사용
+        });
+
+        const data = await res.json();
+        console.log("upload file message ", data);
+
+        // 업로드된 파일 메시지 데이터를 포함하는 액션 디스패치
+        dispatch({ type: UPLOAD_FILE_MESSAGE, payload: data });
     } catch (error) {
         console.log("catch error ", error);
     }

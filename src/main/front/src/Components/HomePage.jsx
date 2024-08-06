@@ -15,10 +15,12 @@ import Profile from "./Profile/Profile";
 import CreateGroup from "./Group/CreateGroup";
 import EditGroup from "./Group/EditGroup";
 import InviteFriends from "./Group/InviteFriends"; // InviteFriends 컴포넌트 추가
+import EmojiPicker from "./EmojiPicker/EmojiPicker"; // EmojiPicker 컴포넌트 추가
 import { currentUser, logoutAction, searchUser } from "../Redux/Auth/Action";
 import { createChat, getUsersChat, updateChat, deleteChat, leaveChat, inviteUserToGroup } from "../Redux/Chat/Action"; // inviteUserToGroup 액션 추가
-import { createMessage, getAllMessages } from "../Redux/Message/Action";
+import {createMessage, getAllMessages, uploadFileMessage} from "../Redux/Message/Action";
 import "./HomePage.css";
+import { useDropzone } from 'react-dropzone';
 
 function HomePage() {
     const [querys, setQuerys] = useState(""); // 검색어 상태
@@ -38,6 +40,9 @@ function HomePage() {
     const [chatMenuAnchorEl, setChatMenuAnchorEl] = useState(null); // 채팅방 메뉴 앵커 상태
     const [chats, setChats] = useState([]); // 채팅 목록 상태
     const subscribedChatsRef = useRef(new Set()); // 구독된 채팅방 ID를 저장하는 Set
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false); // 이모티콘 패널 표시 상태
+
+
 
     const messagesEndRef = useRef(null); // 스크롤을 위한 useRef
 
@@ -46,6 +51,19 @@ function HomePage() {
     const { auth, chat, message } = useSelector((store) => store);
     const searchUsers = useSelector((store) => store.auth.searchUsers) || []; // 검색된 사용자 상태
     const token = localStorage.getItem("token"); // 토큰 가져오기
+
+    // 파일 드롭 핸들러
+    const onDrop = (acceptedFiles) => {
+        const formData = new FormData();
+        acceptedFiles.forEach((file) => {
+            formData.append("file", file);
+        });
+        formData.append("chatId", currentChat.id);
+        formData.append("userId", auth.reqUser.id);
+        dispatch(uploadFileMessage({ token, formData }));
+    };
+
+    const { getRootProps, getInputProps } = useDropzone({ onDrop }); // 파일 드롭존 설정
 
     // 스크롤을 맨 아래로 이동시키는 함수
     const scrollToBottom = () => {
@@ -284,6 +302,12 @@ function HomePage() {
         }
     };
 
+    // 이모티콘 선택 핸들러
+    const handleSelectEmoji = (emoji) => {
+        setContent(content + emoji.native);
+        setShowEmojiPicker(false); // 이모티콘 선택 후 패널 닫기
+    };
+
     // 프로필 보기 상태 설정
     const handleNavigate = () => {
         setIsProfile(true);
@@ -346,6 +370,11 @@ function HomePage() {
 
     return (
         <div className="relative">
+            {showEmojiPicker && (
+                <div className="absolute top-0 left-0 z-10"> {/* 이모티콘 패널 위치 설정 $$$$$$$ */}
+                    <EmojiPicker onSelect={handleSelectEmoji} />
+                </div>
+            )}
             <div className="w-[100vw] py-14 bg-[#00a884]">
                 <div className="flex bg-[#f0f2f5] h-[90vh] absolute top-[5vh] left-[2vw] w-[96vw]">
                     <div className="left w-[30%] h-full bg-[#e8e9ec]">
@@ -503,7 +532,7 @@ function HomePage() {
                                 </div>
                                 <div className="p-3 border-t border-[#ced4da]">
                                     <div className="flex items-center space-x-2">
-                                        <BsEmojiSmile/>
+                                        <BsEmojiSmile onClick={() => setShowEmojiPicker(!showEmojiPicker)} /> {/* 이모티콘 패널 토글  */}
                                         <input
                                             type="text"
                                             className="w-full p-2 border border-[#ced4da] rounded-lg"
@@ -511,7 +540,8 @@ function HomePage() {
                                             value={content}
                                             onChange={(e) => setContent(e.target.value)}
                                         />
-                                        <ImAttachment/>
+                                        <ImAttachment {...getRootProps()} /> {/* 파일 드롭존 설정  */}
+                                        <input {...getInputProps()} /> {/* 파일 인풋 설정  */}
                                         <BsMicFill/>
                                         <button
                                             className="bg-[#00a884] text-white p-2 rounded-lg"

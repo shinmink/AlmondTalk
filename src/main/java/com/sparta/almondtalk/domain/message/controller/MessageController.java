@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -66,6 +67,25 @@ public class MessageController {
         messagingTemplate.convertAndSend("/group/" + message.getChat().getId(), message);
 
         return new ResponseEntity<Message>(message, HttpStatus.OK); // 전송된 메시지와 함께 OK 상태 반환
+    }
+
+    // 파일 업로드를 처리하는 핸들러
+    @PostMapping("/upload")
+    public ResponseEntity<Message> uploadFileHandler(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("chatId") Integer chatId,
+            @RequestParam("userId") Integer userId,
+            @RequestHeader("Authorization") String jwt
+    ) throws UserException, ChatException, MessageException {
+
+        User user = this.userService.findUserProfile(jwt); // JWT 토큰을 사용하여 사용자 프로필을 찾음
+
+        Message message = this.messageService.uploadFileMessage(chatId, userId, file); // 파일 메시지 전송
+
+        // 파일 메시지를 WebSocket을 통해 클라이언트에 전송
+        messagingTemplate.convertAndSend("/group/" + message.getChat().getId(), message);
+
+        return new ResponseEntity<>(message, HttpStatus.OK); // 전송된 메시지와 함께 OK 상태 반환
     }
 
     // 특정 채팅의 모든 메시지를 가져오는 핸들러

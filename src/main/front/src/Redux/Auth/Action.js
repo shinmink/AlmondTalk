@@ -6,6 +6,7 @@ import {
     REQ_USER,
     SEARCH_USER,
     UPDATE_USER,
+    CHANGE_PASSWORD,
 } from "./ActionType";
 
 // 사용자 회원가입을 위한 액션 생성자
@@ -110,6 +111,30 @@ export const updateUser = (data) => async (dispatch) => {
         console.log("catch error", error);
     }
 };
+
+// 비밀번호 변경을 위한 액션 생성자
+export const changePassword = (data) => async (dispatch) => {
+    try {
+        const res = await fetch(`${BASE_API_URL}/api/users/change-password`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${data.token}`,
+            },
+            body: JSON.stringify({
+                currentPassword: data.currentPassword,
+                newPassword: data.newPassword,
+            }),
+        });
+        const resData = await res.json();
+
+        console.log("changed password", resData);
+        dispatch({ type: CHANGE_PASSWORD, payload: resData });
+    } catch (error) {
+        console.log("catch error", error);
+    }
+};
+
 
 // 사용자 로그아웃을 위한 액션 생성자
 export const logoutAction = () => async (dispatch) => {

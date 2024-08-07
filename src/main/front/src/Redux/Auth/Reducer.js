@@ -4,6 +4,7 @@ import {
     REQ_USER,
     SEARCH_USER,
     UPDATE_USER,
+    CHANGE_PASSWORD, // CHANGE_PASSWORD 액션 타입 추가
 } from "./ActionType";
 
 // 인증 스토어의 초기 상태
@@ -28,6 +29,8 @@ export const authReducer = (store = initialValue, { type, payload }) => {
         return { ...store, searchUser: payload }; // 사용자 검색 데이터 업데이트
     } else if (type === UPDATE_USER) {
         return { ...store, updateUser: payload }; // 사용자 업데이트 데이터 업데이트
+    } else if (type === CHANGE_PASSWORD) {
+        return { ...store, changePassword: payload }; // 비밀번호 변경 데이터 업데이트
     }
     // 인식되지 않은 액션 타입의 경우 현재 스토어를 그대로 반환
     return store;

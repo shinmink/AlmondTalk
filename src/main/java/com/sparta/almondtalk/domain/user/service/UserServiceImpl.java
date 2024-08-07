@@ -2,11 +2,13 @@ package com.sparta.almondtalk.domain.user.service;
 
 import com.sparta.almondtalk.domain.user.model.User;
 import com.sparta.almondtalk.domain.user.repository.UserRepository;
+import com.sparta.almondtalk.domain.user.request.ChangePasswordRequest;
 import com.sparta.almondtalk.domain.user.request.UpdateUserRequest;
 import com.sparta.almondtalk.global.config.TokenProvider;
 import com.sparta.almondtalk.global.exception.UserException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository; // 사용자 저장소 의존성 주입
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private TokenProvider tokenProvider; // 토큰 제공자 의존성 주입
@@ -61,6 +66,18 @@ public class UserServiceImpl implements UserService {
         }
         // 업데이트된 사용자 저장.
         return this.userRepository.save(user);
+    }
+
+    // 비밀번호 변경 로직
+    @Override
+    public void changePassword(Integer userId, ChangePasswordRequest request) throws UserException {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException("User not found"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new UserException("Current password is incorrect");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     @Override

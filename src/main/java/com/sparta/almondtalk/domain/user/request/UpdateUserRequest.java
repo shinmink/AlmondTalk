@@ -1,26 +1,15 @@
 package com.sparta.almondtalk.domain.user.request;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class UpdateUserRequest {
 
     private String name;
 
     private String profile;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getProfile() {
-        return profile;
-    }
-
-    public void setProfile(String profile) {
-        this.profile = profile;
-    }
 
     public UpdateUserRequest() {
     }

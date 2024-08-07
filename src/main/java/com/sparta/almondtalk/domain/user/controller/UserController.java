@@ -2,6 +2,7 @@ package com.sparta.almondtalk.domain.user.controller;
 
 import com.sparta.almondtalk.domain.home.response.ApiResponse;
 import com.sparta.almondtalk.domain.user.model.User;
+import com.sparta.almondtalk.domain.user.request.ChangePasswordRequest;
 import com.sparta.almondtalk.domain.user.request.UpdateUserRequest;
 import com.sparta.almondtalk.domain.user.service.UserServiceImpl;
 import com.sparta.almondtalk.global.exception.UserException;
@@ -49,5 +50,21 @@ public class UserController {
         response.setStatus(true); // 상태 설정
 
         return new ResponseEntity<ApiResponse>(response, HttpStatus.ACCEPTED); // 응답과 함께 ACCEPTED 상태 반환
+    }
+
+    // 비밀번호 변경 핸들러
+    @PostMapping("/change-password")
+    public ResponseEntity<ApiResponse> changePasswordHandler(
+            @RequestBody ChangePasswordRequest request,
+            @RequestHeader("Authorization") String token
+    ) throws UserException {
+        User user = this.userService.findUserProfile(token);
+        this.userService.changePassword(user.getId(), request);
+        ApiResponse response = new ApiResponse();
+
+        response.setMessage("Password changed Successfully");
+        response.setStatus(true);
+
+        return new ResponseEntity<ApiResponse>(response, HttpStatus.ACCEPTED);
     }
 }

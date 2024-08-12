@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
+import KakaoMap from "./Map/KakaoMap"; // KakaoMap 컴포넌트 가져오기
 import { AiOutlineSearch } from "react-icons/ai";
 import { BsThreeDotsVertical, BsEmojiSmile, BsMicFill } from "react-icons/bs";
 import { ImAttachment } from "react-icons/im";
@@ -383,18 +384,18 @@ function HomePage() {
                                 <Profile handleCloseOpenProfile={handleCloseOpenProfile}/>
                             </div>
                         )}
+
                         {isGroup && <CreateGroup setIsGroup={setIsGroup}/>}
                         {isEditGroup && (
                             <EditGroup
                                 currentChat={currentChat}
                                 setIsEditGroup={setIsEditGroup}
-                                // 수정된 데이터를 실시간으로 반영
                                 onUpdate={(updatedChat) => {
                                     setCurrentChat(prevChat => ({
                                         ...prevChat,
                                         chatName: updatedChat.chatName,
                                         chatImage: updatedChat.chatImage,
-                                    })); // currentChat 상태 업데이트
+                                    }));
                                 }}
                             />
                         )}
@@ -600,6 +601,12 @@ function HomePage() {
                                     </div>
                                 ))}
                             </div>
+
+                            {/*/!* 카카오 맵 컴포넌트를 서치바 아래에 추가 *!/*/}
+                            <div className="py-3">
+                                <KakaoMap />
+                            </div>
+
                         </div>
                     </div>
                 </div>

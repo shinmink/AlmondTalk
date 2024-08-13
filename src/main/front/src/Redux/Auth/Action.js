@@ -261,12 +261,18 @@ export const getNearbyUsers = ({ latitude, longitude, radius, token }) => async 
             },
         });
 
-        const resData = await res.json(); // 서버의 응답을 JSON으로 변환
+        const resData = await res.json(); // 서버로부터의 응답을 JSON으로 변환
 
-        console.log("nearby users", resData); // 서버 응답 데이터 로그 출력
-        dispatch({ type: GET_NEARBY_USERS, payload: resData }); // 근처 사용자 목록 가져오기 성공 시 액션 디스패치
+        console.log("Nearby users response:", resData); // 서버 응답을 콘솔에 출력
+
+        dispatch({ type: GET_NEARBY_USERS, payload: resData });
+
+        return resData; // 이 부분이 중요합니다: 데이터를 반환하여 fetchNearbyUsers에서 사용할 수 있도록 합니다.
+
+
     } catch (error) {
-        console.log("catch error", error); // 에러 발생 시 로그 출력
-        dispatch({ type: GET_NEARBY_USERS_ERROR, payload: error.message }); // 에러 발생 시 에러 액션 디스패치
+        console.log("Error fetching nearby users:", error);
+        dispatch({ type: GET_NEARBY_USERS_ERROR, payload: error.message });
+        return undefined; // 에러 발생 시 undefined 반환
     }
 };

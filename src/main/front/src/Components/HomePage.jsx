@@ -45,8 +45,6 @@ function HomePage() {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false); // 이모티콘 패널 표시 상태
     const [nearbyUsers, setNearbyUsers] = useState([]); // 근처 사용자 상태
 
-
-
     const messagesEndRef = useRef(null); // 스크롤을 위한 useRef
 
     const navigate = useNavigate();
@@ -58,8 +56,9 @@ function HomePage() {
     // 사용자의 현재 위치를 가져오는 함수
     const fetchNearbyUsers = (latitude, longitude) => {
         dispatch(getNearbyUsers({ latitude, longitude, radius: 5000, token }))
-            .then((users) => {
-                setNearbyUsers(users); // 근처 사용자 상태 설정
+            .then((response) => {
+                console.log("Nearby users fetched:", response);
+                setNearbyUsers(response); // 근처 사용자 상태 설정
             })
             .catch((error) => {
                 console.error("Failed to fetch nearby users:", error);

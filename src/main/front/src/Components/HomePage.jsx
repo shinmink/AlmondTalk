@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import KakaoMap from "./Map/KakaoMap"; // KakaoMap 컴포넌트 가져오기
+import { getNearbyUsers } from "../Redux/Auth/Action";
 import { AiOutlineSearch } from "react-icons/ai";
 import { BsThreeDotsVertical, BsEmojiSmile, BsMicFill } from "react-icons/bs";
 import { ImAttachment } from "react-icons/im";
@@ -42,6 +43,7 @@ function HomePage() {
     const [chats, setChats] = useState([]); // 채팅 목록 상태
     const subscribedChatsRef = useRef(new Set()); // 구독된 채팅방 ID를 저장하는 Set
     const [showEmojiPicker, setShowEmojiPicker] = useState(false); // 이모티콘 패널 표시 상태
+    const [nearbyUsers, setNearbyUsers] = useState([]); // 근처 사용자 상태
 
 
 
@@ -52,6 +54,27 @@ function HomePage() {
     const { auth, chat, message } = useSelector((store) => store);
     const searchUsers = useSelector((store) => store.auth.searchUsers) || []; // 검색된 사용자 상태
     const token = localStorage.getItem("token"); // 토큰 가져오기
+
+    // 사용자의 현재 위치를 가져오는 함수
+    const fetchNearbyUsers = (latitude, longitude) => {
+        dispatch(getNearbyUsers({ latitude, longitude, radius: 5000, token }))
+            .then((users) => {
+                setNearbyUsers(users); // 근처 사용자 상태 설정
+            })
+            .catch((error) => {
+                console.error("Failed to fetch nearby users:", error);
+            });
+    };
+
+    useEffect(() => {
+        if (auth.reqUser) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const { latitude, longitude } = position.coords;
+                fetchNearbyUsers(latitude, longitude); // 사용자 위치로 근처 유저를 가져옴
+            });
+        }
+    }, [auth.reqUser]);
+
 
     // 파일 드롭 핸들러
     const onDrop = (acceptedFiles) => {
@@ -604,7 +627,7 @@ function HomePage() {
 
                             {/*/!* 카카오 맵 컴포넌트를 서치바 아래에 추가 *!/*/}
                             <div className="py-3">
-                                <KakaoMap />
+                                <KakaoMap nearbyUsers={nearbyUsers} /> {/* KakaoMap 컴포넌트에 근처 사용자들 전달 */}
                             </div>
 
                         </div>

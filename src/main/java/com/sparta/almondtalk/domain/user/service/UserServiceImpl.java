@@ -86,4 +86,10 @@ public class UserServiceImpl implements UserService {
         List<User> users = this.userRepository.searchUser(query);
         return users;
     }
+
+    //  근처 사용자 검색 메서드 추가
+    @Override
+    public List<User> findNearbyUsers(double latitude, double longitude, double radius) {
+        return userRepository.findNearbyUsers(latitude, longitude, radius);
+    }
 }

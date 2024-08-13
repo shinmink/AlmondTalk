@@ -10,6 +10,9 @@ public class LoginRequest {
     private String email;
     private String password;
 
+    private Double latitude;
+    private Double longitude;
+
     public LoginRequest() {
     }
 

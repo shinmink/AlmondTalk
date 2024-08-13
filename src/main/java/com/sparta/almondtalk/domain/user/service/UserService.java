@@ -18,4 +18,6 @@ public interface UserService {
     public void changePassword(Integer userId, ChangePasswordRequest request) throws UserException;
 
     public List<User> searchUser(String query);
-}
+
+    public List<User> findNearbyUsers(double latitude, double longitude, double radius);
+    }

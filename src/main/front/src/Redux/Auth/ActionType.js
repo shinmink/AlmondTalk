@@ -5,3 +5,5 @@ export const SEARCH_USER = "SEARCH_USER";
 export const UPDATE_USER = "UPDATE_USER";
 export const LOGOUT = "LOGOUT";
 export const CHANGE_PASSWORD = "CHANGE_PASSWORD";
+export const GET_NEARBY_USERS = "GET_NEARBY_USERS";
+export const GET_NEARBY_USERS_ERROR = "GET_NEARBY_USERS_ERROR";

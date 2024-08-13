@@ -22,18 +22,23 @@ public class User {
     private String profile;
     private String password;
 
-    public User(int id, String name, String email, String profile, String password) {
+    private Double latitude;
+    private Double longitude;
+
+    public User(int id, String name, String email, String profile, String password, Double latitude, Double longitude) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.profile = profile;
         this.password = password;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     @Override
     public String toString() {
         return "User [id=" + id + ", name=" + name + ", email=" + email + ", profile=" + profile + ", password="
-                + password + "]";
+                + password + ", latitude=" + latitude + ", longitude=" + longitude + "]";
     }
 
 }

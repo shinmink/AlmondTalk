@@ -74,6 +74,10 @@ function HomePage() {
         }
     }, [auth.reqUser]);
 
+    // 마이페이지로 이동하는 함수 추가
+    const handleMyStory = () => {
+        navigate("/status");
+    };
 
     // 파일 드롭 핸들러
     const onDrop = (acceptedFiles) => {
@@ -407,7 +411,7 @@ function HomePage() {
                             </div>
                         )}
 
-                        {isGroup && <CreateGroup setIsGroup={setIsGroup}/>}
+                        {isGroup && <CreateGroup setIsGroup={setIsGroup} nearbyUsers={nearbyUsers}/>}
                         {isEditGroup && (
                             <EditGroup
                                 currentChat={currentChat}
@@ -425,6 +429,7 @@ function HomePage() {
                             <InviteFriends
                                 currentChat={currentChat}
                                 setInviteMode={setInviteMode}
+                                nearbyUsers={nearbyUsers}  /* nearbyUsers 값을 InviteFriends로 전달 */
                             />
                         )}
 
@@ -460,6 +465,9 @@ function HomePage() {
                                     >
                                         <MenuItem onClick={handleCreateGroup}>
                                             새로운 채팅방 만들기
+                                        </MenuItem>
+                                        <MenuItem onClick={handleMyStory}> {/* 내 스토리 메뉴 항목 추가 */}
+                                            내 스토리
                                         </MenuItem>
                                         <MenuItem onClick={handleLogout}>
                                             로그아웃

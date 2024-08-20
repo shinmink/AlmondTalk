@@ -69,24 +69,6 @@ public class UserController {
         return new ResponseEntity<ApiResponse>(response, HttpStatus.ACCEPTED);
     }
 
-    // 근처 사용자 검색 엔드포인트 추가
-//    @PostMapping("/nearby")
-//    public ResponseEntity<List<User>> getNearbyUsers(@RequestBody NearbyRequest nearbyRequest) {
-//        double latitude = nearbyRequest.getLatitude();
-//        double longitude = nearbyRequest.getLongitude();
-//        double radius = nearbyRequest.getRadius();
-//
-//        // 로그 추가로 디버깅
-//        System.out.println("Latitude: " + latitude);
-//        System.out.println("Longitude: " + longitude);
-//        System.out.println("Radius: " + radius);
-//
-//
-//
-//        List<User> users = userService.findNearbyUsers(latitude , longitude, radius);
-//        return new ResponseEntity<>(users, HttpStatus.OK);
-//    }
-
     @GetMapping("/nearby")
     public ResponseEntity<List<User>> getNearbyUsers(
             @RequestParam(name = "latitude") double latitude,

@@ -1,5 +1,5 @@
 // CreateGroup.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import SelectedMember from "./SelectedMember";
 import ChatCard from "../ChatCard/ChatCard";
@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { searchUser } from "../../Redux/Auth/Action";
 import useGroupMembers from "../../hooks/useGroupMembers"; // 커스텀 훅 가져오기
 
-const CreateGroup = ({ setIsGroup }) => {
+const CreateGroup = ({ setIsGroup, nearbyUsers  }) => {
     const [newGroup, setNewGroup] = useState(false);
     const [query, setQuery] = useState("");
     const dispatch = useDispatch();
@@ -16,11 +16,24 @@ const CreateGroup = ({ setIsGroup }) => {
     const token = localStorage.getItem("token");
 
     // 커스텀 훅 사용
+    // 미리 채팅 생성자를 그룹 멤버에 추가하는 useEffect
     const { groupMember, addMember, removeMember } = useGroupMembers();
+    useEffect(() => {
+        if (auth.reqUser) {
+            addMember(auth.reqUser);  // 채팅 생성자를 미리 그룹에 추가
+        }
+    }, [auth.reqUser]);
 
     const handleSearch = (keyword) => {
-        dispatch(searchUser({ keyword, token }));
+        // 이미 그룹에 포함된 멤버는 제외하고 검색
+        const filteredUsers = nearbyUsers.filter(user =>
+            (user.name.toLowerCase().includes(keyword.toLowerCase()) ||
+                user.email.toLowerCase().includes(keyword.toLowerCase())) &&
+            !Array.from(groupMember).some(member => member.id === user.id) // 이미 선택된 멤버 제외
+        );
+        dispatch(searchUser({ keyword, token, filteredUsers }));
     };
+
 
     return (
         <div className="w-full h-full">

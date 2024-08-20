@@ -32,6 +32,9 @@ public class AuthServiceImpl implements AuthService  {
     @Autowired
     private CustomUserService customUserService;
 
+    private static final String DEFAULT_PROFILE_IMAGE = "/defUser.png"; // 기본 프로필 이미지 URL 설정
+
+
     @Override
     public AuthResponse signUp(User user) throws UserException {
         String email = user.getEmail();
@@ -51,6 +54,9 @@ public class AuthServiceImpl implements AuthService  {
         createdUser.setLatitude(user.getLatitude());
         createdUser.setLongitude(user.getLongitude());
         createdUser.setPassword(this.passwordEncoder.encode(password));
+        createdUser.setProfile(DEFAULT_PROFILE_IMAGE); //  기본 프로필 이미지 설정
+
+
 
         userRepository.save(createdUser);
 

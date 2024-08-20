@@ -3,6 +3,7 @@ import {
     REGISTER,
     REQ_USER,
     SEARCH_USER,
+    SEARCH_USERS,
     UPDATE_USER,
     CHANGE_PASSWORD, // CHANGE_PASSWORD 액션 타입 추가
     GET_NEARBY_USERS,
@@ -31,7 +32,9 @@ export const authReducer = (store = initialValue, { type, payload }) => {
     } else if (type === REQ_USER) {
         return { ...store, reqUser: payload }; // 현재 사용자 데이터 업데이트
     } else if (type === SEARCH_USER) {
-        return { ...store, searchUsers: payload }; // 사용자 검색 데이터 업데이트
+        return { ...store, searchUser: payload }; // 사용자 검색 데이터 업데이트
+    } else if (type === SEARCH_USERS) {
+        return { ...store, searchUsers: payload }; // 사용자 검색 목록 데이터 업데이트
     } else if (type === UPDATE_USER) {
         return { ...store, updateUser: payload }; // 사용자 업데이트 데이터 업데이트
     } else if (type === CHANGE_PASSWORD) {

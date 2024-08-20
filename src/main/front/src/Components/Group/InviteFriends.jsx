@@ -8,7 +8,7 @@ import { searchUser } from "../../Redux/Auth/Action";
 import { inviteUserToGroup } from "../../Redux/Chat/Action";
 import useGroupMembers from "../../hooks/useGroupMembers"; // 커스텀 훅 가져오기
 
-const InviteFriends = ({ currentChat, setInviteMode }) => {
+const InviteFriends = ({ currentChat, setInviteMode, nearbyUsers }) => {
     const [query, setQuery] = useState("");
     const dispatch = useDispatch();
     const { auth } = useSelector((store) => store);
@@ -18,7 +18,14 @@ const InviteFriends = ({ currentChat, setInviteMode }) => {
     const { groupMember, addMember, removeMember } = useGroupMembers();
 
     const handleSearch = (keyword) => {
-        dispatch(searchUser({ keyword, token }));
+        // 이미 그룹에 포함된 멤버와 이미 초대된 멤버는 제외하고 검색
+        const filteredUsers = nearbyUsers.filter(user =>
+            (user.name.toLowerCase().includes(keyword.toLowerCase()) ||
+                user.email.toLowerCase().includes(keyword.toLowerCase())) &&
+            !currentChat.users.some(chatUser => chatUser.id === user.id) && // 이미 그룹에 포함된 멤버 제외
+            !Array.from(groupMember).some(member => member.id === user.id) // 이미 초대된 멤버 제외
+        );
+        dispatch(searchUser({ keyword, token, filteredUsers }));
     };
 
     const handleInvite = () => {
